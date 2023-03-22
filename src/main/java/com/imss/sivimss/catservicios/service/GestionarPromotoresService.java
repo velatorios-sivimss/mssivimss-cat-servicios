@@ -1,0 +1,14 @@
+package com.imss.sivimss.catservicios.service;
+
+import java.io.IOException;
+
+import org.springframework.security.core.Authentication;
+
+import com.imss.sivimss.catservicios.util.DatosRequest;
+import com.imss.sivimss.catservicios.util.Response;
+
+public interface GestionarPromotoresService {
+
+	Response<?> agregarVelatorio(DatosRequest request, Authentication authentication)throws IOException;
+
+}
