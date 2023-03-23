@@ -11,4 +11,5 @@ public interface GestionarPromotoresService {
 
 	Response<?> agregarVelatorio(DatosRequest request, Authentication authentication)throws IOException;
 
+
 }

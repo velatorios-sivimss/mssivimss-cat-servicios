@@ -97,7 +97,6 @@ public class GestionarPromotores {
 		queries.append(query);
 		for(int i=0; i<this.fecPromotorDiasDescanso.size(); i++) {
 			queries.append(" $$ " + insertarDiasDescanso(this.fecPromotorDiasDescanso.get(i)));
-			//log.info("estoy en: " +query);
 			  String encoded = DatatypeConverter.printBase64Binary(queries.toString().getBytes());
 		        parametro.put(AppConstantes.QUERY, encoded);
 		        parametro.put("separador","$$");
@@ -124,6 +123,18 @@ public class GestionarPromotores {
 		log.info(query);
 		return query;
 	}
+
+
+	public DatosRequest buscarCurp(String desCurp) {
+		DatosRequest request= new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+			String query = "SELECT DES_CURP FROM SVT_PROMOTOR WHERE DES_CURP=  '"+desCurp +"' ";
+			String encoded=DatatypeConverter.printBase64Binary(query.getBytes());
+			parametro.put(AppConstantes.QUERY, encoded);
+			request.setDatos(parametro);
+			return request;
+	}
+
 
 
 }
