@@ -39,7 +39,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	GestionarPromotores promotores=new GestionarPromotores();
 	
 	@Override
-	public Response<?> agregarVelatorio(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> agregarPromotor(DatosRequest request, Authentication authentication) throws IOException {
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		PromotoresRequest promotoresRequest = gson.fromJson(datosJson, PromotoresRequest.class);	
@@ -69,5 +69,32 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		 throw new BadRequestException(HttpStatus.BAD_REQUEST, "ERROR AL REGISTRAR EL PROMOTOR ");
 	}
 
-
+	@Override
+	public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication) throws IOException {
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		PromotoresRequest promotoresRequest = gson.fromJson( String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PromotoresRequest.class);
+		
+		if (promotoresRequest.getIdPromotor() == null ) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		}
+		promotores= new GestionarPromotores(promotoresRequest);
+		promotores.setIdUsuarioModifica(usuarioDto.getId());
+		promotores.setIdUsuarioBaja(usuarioDto.getId());
+		
+		Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizar().getDatos(), urlDominioConsulta + "/generico/actualizar",
+				authentication);
+		log.info("codigo :" +response.getCodigo());
+		if(response.getCodigo()==200 && promotoresRequest.getFecPromotorDiasDescanso()!=null) {
+			for(int i=0; i<promotoresRequest.getFecPromotorDiasDescanso().size(); i++) {
+			log.info("fechas " +promotores.getFecPromotorDiasDescanso().get(i));
+			 providerRestTemplate.consumirServicio(promotores.actualizarDiasDescanso(promotores.getFecPromotorDiasDescanso().get(i), promotores.getIdPromotor()).getDatos(),
+                     urlDominioConsulta + "/generico/actualizar", authentication);
+			}
+}else if(response.getCodigo()==200) {
+	return response;
+}else {
+	throw new BadRequestException(HttpStatus.BAD_REQUEST, "Error al actualizar promotor");
+}
+		return response;
+	}
 }

@@ -26,7 +26,14 @@ public class GestionarPromotoresController {
 	@PostMapping("/agregar")
 	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
 	
-		return gestionarPromotoresService.agregarVelatorio(request,authentication);
+		return gestionarPromotoresService.agregarPromotor(request,authentication);
+	}
+	
+	@PostMapping("/actualiza")
+	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.actualizarPromotor(request,authentication);
+      
 	}
 
 }

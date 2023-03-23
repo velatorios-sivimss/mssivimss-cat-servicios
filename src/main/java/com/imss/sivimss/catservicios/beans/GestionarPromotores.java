@@ -136,5 +136,66 @@ public class GestionarPromotores {
 	}
 
 
+	public DatosRequest actualizar() {
+		DatosRequest request = new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		final QueryHelper q = new QueryHelper("UPDATE SVT_PROMOTOR");
+		q.agregarParametroValues("FEC_INGRESO", "'" + this.fecIngreso +"'");
+		q.agregarParametroValues("MON_SUELDOBASE", ""+ this.monSueldoBase +"");
+		q.agregarParametroValues("ID_VELATORIO", "" + this.idVelatorio + "");
+		q.agregarParametroValues("DES_CORREO", "'" + this.desCorreo + "'");
+		q.agregarParametroValues("DES_PUESTO", "'" + this.desPuesto + "'");
+		q.agregarParametroValues("DES_CATEGORIA", "'" + this.desCategoria + "'");
+		q.agregarParametroValues("IND_ESTATUS", "" +this.indEstatus+ "");
+		q.agregarParametroValues("ID_USUARIO_MODIFICA", "" +idUsuarioModifica+ "");
+		q.agregarParametroValues("FEC_ACTUALIZACION", " NOW() ");
+		if(this.indEstatus==0) {
+			q.agregarParametroValues("FEC_BAJA", " CURRENT_TIMESTAMP() ");
+			q.agregarParametroValues("ID_USUARIO_BAJA", "" + idUsuarioBaja + "");
+		}
+		q.agregarParametroValues("ID_DELEGACION", "" + this.idDelegacion + "");
+		q.addWhere("ID_PROMOTOR = " + this.idPromotor);
+		
+				String query = q.obtenerQueryActualizar();
+				String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		        parametro.put(AppConstantes.QUERY, encoded);
+		        request.setDatos(parametro);
+		return request;
+	}
+
+
+	public DatosRequest actualizarDiasDescanso(String fecDescanso, Integer idPromotor) {
+		DatosRequest request= new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PROMOTOR_DIAS_DESCANSO");
+		q.agregarParametroValues("ID_PROMOTOR", "" + idPromotor + "");
+		q.agregarParametroValues("FEC_PROMOTOR_DIAS_DESCANSO", "'" + fecDescanso + "'");
+		q.agregarParametroValues("IND_ESTATUS", "1");
+	
+		String query = q.obtenerQueryInsertar();
+		parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+		request.setDatos(parametro);
+
+		return request;
+	
+	}
+
+
+	/* public DatosRequest actualizarDiasDescanso(List<String> fecPromotorDiasDescanso, Integer idPromotor) {
+		DatosRequest request = new DatosRequest();
+		for(int i=0; i<this.fecPromotorDiasDescanso.size(); i++) {
+			
+		String query ="INSERT INTO SVT_PROMOTOR_DIAS_DESCANSO "
+				+ "(ID_PROMOTOR, FEC_PROMOTOR_DIAS_DESCANSO, IND_ESTATUS) "
+				+ "SELECT " +idPromotor+ ", '" +fecPromotorDiasDescanso.get(i) + "', 1 FROM DUAL "
+				+ "WHERE NOT EXISTS (SELECT * FROM SVT_PROMOTOR_DIAS_DESCANSO "
+				+ " WHERE ID_PROMOTOR=" +idPromotor+ " AND FEC_PROMOTOR_DIAS_DESCANSO='" +fecPromotorDiasDescanso.get(i) + "')";
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+		log.info(query);
+		}
+		return request;
+	} */
+
+
 
 }

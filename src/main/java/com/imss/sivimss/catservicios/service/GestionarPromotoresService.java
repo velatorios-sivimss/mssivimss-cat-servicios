@@ -9,7 +9,9 @@ import com.imss.sivimss.catservicios.util.Response;
 
 public interface GestionarPromotoresService {
 
-	Response<?> agregarVelatorio(DatosRequest request, Authentication authentication)throws IOException;
+	Response<?> agregarPromotor(DatosRequest request, Authentication authentication)throws IOException;
+
+	Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)throws IOException;
 
 
 }
