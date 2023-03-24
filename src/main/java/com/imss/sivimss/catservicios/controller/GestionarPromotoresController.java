@@ -3,6 +3,7 @@ package com.imss.sivimss.catservicios.controller;
 import java.io.IOException;
 import java.text.ParseException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/promotor")
 public class GestionarPromotoresController {
 	
-
+    @Autowired
 	private GestionarPromotoresService gestionarPromotoresService;
 	
 	@PostMapping("/agregar")
@@ -33,6 +34,20 @@ public class GestionarPromotoresController {
 	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	
 		return gestionarPromotoresService.actualizarPromotor(request,authentication);
+      
+	}
+	
+	@PostMapping("/estatus")
+	public Response<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.cambiarEstatusPromotor(request,authentication);
+      
+	}
+	
+	@PostMapping("/catalogo")
+	public Response<?> catalogoPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.mostrarCatalogo(request,authentication);
       
 	}
 

@@ -13,5 +13,9 @@ public interface GestionarPromotoresService {
 
 	Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)throws IOException;
 
+	Response<?> cambiarEstatusPromotor(DatosRequest request, Authentication authentication) throws IOException;
+
+	Response<?> mostrarCatalogo(DatosRequest request, Authentication authentication)throws IOException;
+
 
 }
