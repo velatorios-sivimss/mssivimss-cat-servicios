@@ -32,7 +32,11 @@ logos:
 endpoints:
    consulta-ooads: http://localhost:8090/dominio/
    paginado-unidad: http://localhost:8090/dominio/ooad/paginacion
-   dominio-consulta: http://localhost:8094/mssivimss-mod-catalogos
+   dominio-consulta: http://localhost:8090/mssivimss-mod-catalogos
+   generico-paginado: http://localhost:8090/mssivimss-mod-catalogos/generico/paginado
+   generico-consulta: http://localhost:8090/mssivimss-mod-catalogos/generico/consulta
+   generico-crear: http://localhost:8090/mssivimss-mod-catalogos/generico/crear
+   generico-actualizar: http://localhost:8090/mssivimss-mod-catalogos/generico/actualizar
    ms-reportes: http://localhost:8088/mssivimss-reportes-jpr
 
 jwt:
