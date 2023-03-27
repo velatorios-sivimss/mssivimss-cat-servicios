@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.imss.sivimss.catservicios.beans.GestionarPromotores;
 import com.imss.sivimss.catservicios.exception.BadRequestException;
+import com.imss.sivimss.catservicios.model.request.BuscarPromotoresRequest;
 import com.imss.sivimss.catservicios.model.request.PromotoresRequest;
 import com.imss.sivimss.catservicios.model.request.UsuarioDto;
 import com.imss.sivimss.catservicios.service.GestionarPromotoresService;
@@ -118,6 +119,14 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			return !rst.toString().equals("[]");	
 			}
 		 throw new BadRequestException(HttpStatus.BAD_REQUEST, "ERROR AL REGISTRAR EL PROMOTOR ");
+	}
+
+	@Override
+	public Response<?> busquedas(DatosRequest request, Authentication authentication) throws IOException {
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		BuscarPromotoresRequest buscar = gson.fromJson(datosJson, BuscarPromotoresRequest.class);
+		return providerRestTemplate.consumirServicio(promotores.filtrosBusqueda(request, buscar).getDatos(), urlDominioConsulta + "/generico/paginado",
+				authentication);
 	}
 
 	

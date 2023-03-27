@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.imss.sivimss.catservicios.model.request.BuscarPromotoresRequest;
 import com.imss.sivimss.catservicios.model.request.PromotoresRequest;
 import com.imss.sivimss.catservicios.util.AppConstantes;
 import com.imss.sivimss.catservicios.util.DatosRequest;
@@ -218,20 +219,29 @@ public class GestionarPromotores {
 	}
 
 
-	/* public DatosRequest actualizarDescansos(String fecPromotorDiasDescanso, Integer idPromotor) {
-		DatosRequest request = new DatosRequest();
-		log.info(fecPromotorDiasDescanso);
-		log.info("promotor: "+idPromotor);
-		String query ="INSERT INTO SVT_PROMOTOR_DIAS_DESCANSO "
-				+ "(ID_PROMOTOR, FEC_PROMOTOR_DIAS_DESCANSO, IND_ESTATUS) "
-				+ "SELECT " +idPromotor+ ", '" +fecPromotorDiasDescanso + "', 1 FROM DUAL "
-				+ "WHERE NOT EXISTS (SELECT * FROM SVT_PROMOTOR_DIAS_DESCANSO "
-				+ " WHERE ID_PROMOTOR=" +idPromotor+ " AND FEC_PROMOTOR_DIAS_DESCANSO='" +fecPromotorDiasDescanso+ "')";
-		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
-		log.info(query);
+	public DatosRequest filtrosBusqueda(DatosRequest request, BuscarPromotoresRequest buscar) {
+		  StringBuilder queries = new StringBuilder();
+		String query ="SELECT SP.ID_PROMOTOR AS idPromotor, SP.NUM_EMPLEDO AS numEmpleado, SP.DES_CURP AS curp, "
+				+ "SP.NOM_PROMOTOR AS nomPromotor, SP.NOM_PAPELLIDO AS apellidoP, SP.NOM_SAPELLIDO AS apellidoM, "
+				+ "SP.FEC_NACIMIENTO AS fecNacimiento, SP.FEC_INGRESO AS fecIngreso, SP.FEC_BAJA AS fecBaja, "
+				+ "SP.MON_SUELDOBASE AS sueldoBase, SP.ID_VELATORIO AS idVelatorio, SV.NOM_VELATORIO AS velatorio, SP.DES_CORREO AS correo, "
+				+ " SP.DES_PUESTO AS puesto, SP.DES_CATEGORIA AS categoria, SP.IND_ESTATUS AS estatus, SP.ID_DELEGACION AS idDelegacion, "
+				+ " SD.DES_DELEGACION AS delegacion, "
+		+ "(SELECT FEC_PROMOTOR_DIAS_DESCANSO FROM SVT_PROMOTOR_DIAS_DESCANSO LIMIT 1) AS fecDescansos "
+		+ "FROM svt_promotor SP "
+		+ "JOIN svc_velatorio SV ON SV.ID_VELATORIO = SP.ID_VELATORIO "
+		+ "JOIN svc_delegacion SD ON SD.DES_DELEGACION = SP.ID_DELEGACION ";
+		queries.append(query);
+		if(buscar.getDelegacion()!=null && buscar.getVelatorio()==null && buscar.getPromotor()==null) {
+			queries.append(" WHERE SD.DES_DELEGACION LIKE '%" + buscar.getDelegacion() + "%'");
+		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()!=null && buscar.getPromotor()==null){
+			queries.append(" WHERE SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%'");	
+		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()==null && buscar.getPromotor()!=null){
+			queries.append(" WHERE SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
+		}
+		log.info(queries.toString());
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(queries.toString().getBytes()));
 		return request;
-	} */
-
-
+	}
 
 }

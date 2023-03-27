@@ -17,5 +17,7 @@ public interface GestionarPromotoresService {
 
 	Response<?> mostrarCatalogo(DatosRequest request, Authentication authentication)throws IOException;
 
+	Response<?> busquedas(DatosRequest request, Authentication authentication) throws IOException;
+
 
 }

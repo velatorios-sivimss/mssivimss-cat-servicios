@@ -50,5 +50,12 @@ public class GestionarPromotoresController {
 		return gestionarPromotoresService.mostrarCatalogo(request,authentication);
       
 	}
+	
+	@PostMapping("/filtros")
+	public Response<?> filtrosBusqueda(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.busquedas(request,authentication);
+      
+	}
 
 }
