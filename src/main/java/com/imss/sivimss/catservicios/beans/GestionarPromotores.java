@@ -238,7 +238,13 @@ public class GestionarPromotores {
 			queries.append(" WHERE SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%'");	
 		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()==null && buscar.getPromotor()!=null){
 			queries.append(" WHERE SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
-		}
+		}else if(buscar.getDelegacion()!=null && buscar.getVelatorio()!=null && buscar.getPromotor()==null){
+			queries.append(" WHERE SD.DES_DELEGACION LIKE '%" + buscar.getDelegacion() + "%' AND SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%' ");	
+		}else if(buscar.getDelegacion()!=null && buscar.getVelatorio()==null && buscar.getPromotor()!=null){
+			queries.append(" WHERE SD.DES_DELEGACION LIKE '%" + buscar.getDelegacion() + "%' AND SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
+		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()!=null && buscar.getPromotor()!=null){
+			queries.append(" WHERE SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%' AND SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
+		}queries.append(" WHERE SD.DES_DELEGACION LIKE '%" + buscar.getDelegacion() + "%' AND SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%' AND SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
 		log.info(queries.toString());
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(queries.toString().getBytes()));
 		return request;
