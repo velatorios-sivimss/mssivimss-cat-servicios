@@ -207,12 +207,12 @@ public class GestionarPromotores {
 				+ "SP.FEC_NACIMIENTO AS fecNacimiento, SP.FEC_INGRESO AS fecIngreso, SP.FEC_BAJA AS fecBaja, "
 				+ "SP.MON_SUELDOBASE AS sueldoBase, SP.ID_VELATORIO AS idVelatorio, SV.NOM_VELATORIO AS velatorio, SP.DES_CORREO AS correo, "
 				+ " SP.DES_PUESTO AS puesto, SP.DES_CATEGORIA AS categoria, SP.IND_ESTATUS AS estatus, SP.ID_DELEGACION AS idDelegacion, "
-				+ " SD.DES_DELEGACION AS delegacion, "
-		+ "(SELECT FEC_PROMOTOR_DIAS_DESCANSO FROM SVT_PROMOTOR_DIAS_DESCANSO LIMIT 1) AS fecDescansos "
-		+ "FROM svt_promotor SP "
-	//	+ "JOIN svt_promotor_dias_descanso SPDD ON SPDD.ID_PROMOTOR = SP.ID_PROMOTOR "
-		+ "JOIN svc_velatorio SV ON SV.ID_VELATORIO = SP.ID_VELATORIO "
-		+ "JOIN svc_delegacion SD ON SD.DES_DELEGACION = SP.ID_DELEGACION ";
+				+ " SD.DES_DELEGACION AS delegacion, APDD.FEC_PROMOTOR_DIAS_DESCANSO AS descansos "
+		//+ "(SELECT FEC_PROMOTOR_DIAS_DESCANSO FROM SVT_PROMOTOR_DIAS_DESCANSO LIMIT 1) AS fecDescansos "
+		+ "FROM SVT_PROMOTOR SP "
+		+ "JOIN SVT_PROMOTOR_DIAS_DESCANSO SPDD ON SPDD.ID_PROMOTOR = SP.ID_PROMOTOR "
+		+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SP.ID_VELATORIO "
+		+ "JOIN SVC_DELEGACION SD ON SD.DES_DELEGACION = SP.ID_DELEGACION ";
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 		log.info(query);
 		return request;
