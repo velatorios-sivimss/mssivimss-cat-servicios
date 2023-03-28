@@ -23,6 +23,7 @@ import com.imss.sivimss.catservicios.util.AppConstantes;
 import com.imss.sivimss.catservicios.util.ProviderServiceRestTemplate;
 
 import com.imss.sivimss.catservicios.model.response.TipoServicioResponse;
+import com.imss.sivimss.catservicios.model.request.PaqueteDto;
 import com.imss.sivimss.catservicios.model.response.TipoArticuloResponse;
 
 @Service
@@ -33,6 +34,12 @@ public class PaqueteServiceImpl implements PaqueteService {
 	
 	@Value("${endpoints.generico-consulta}")
 	private String urlGenericoConsulta;
+	
+	@Value("${endpoints.generico-crear}")
+	private String urlGenericoCrear;
+	
+	@Value("${endpoints.generico-actualizar}")
+	private String urlGenericoActualizar;
 
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
@@ -93,7 +100,6 @@ public class PaqueteServiceImpl implements PaqueteService {
 	@Override
 	public Response<?> listadoServicios(DatosRequest request, Authentication authentication) throws IOException {
 		Paquete paquete = new Paquete();
-		//List<TipoServicioResponse> servicioResponse;
 		Response<?> response = providerRestTemplate.consumirServicio(paquete.listadoServicios().getDatos(), urlGenericoConsulta, 
 				authentication);
 	
@@ -103,7 +109,6 @@ public class PaqueteServiceImpl implements PaqueteService {
 	@Override
 	public Response<?> listadoArticulos(DatosRequest request, Authentication authentication) throws IOException {
 		Paquete paquete = new Paquete();
-		//List<TipoArticuloResponse> articuloResponse;
 		Response<?> response = providerRestTemplate.consumirServicio(paquete.listadoArticulos().getDatos(), urlGenericoConsulta, 
 				authentication);
 
@@ -114,11 +119,44 @@ public class PaqueteServiceImpl implements PaqueteService {
 	public Response<?> detallePaquete(DatosRequest request, Authentication authentication) throws IOException {
 		Paquete paquete = new Paquete();
 		
-		//Response<?> request1 = providerRestTemplate.consumirServicio(paquete.serviciosPaquete(request).getDatos(), urlGenericoConsulta,
-		//		authentication);
-		
 		return providerRestTemplate.consumirServicio(paquete.detallePaquete(request).getDatos(), urlGenericoConsulta, 
 				authentication);
+	}
+
+	@Override
+	public Response<?> detallePaqServicios(DatosRequest request, Authentication authentication) throws IOException {
+        Paquete paquete = new Paquete();
+		
+		return providerRestTemplate.consumirServicio(paquete.serviciosPaquete(request).getDatos(), urlGenericoConsulta, 
+				authentication);
+	}
+
+	@Override
+	public Response<?> detallePaqArticulos(DatosRequest request, Authentication authentication) throws IOException {
+        Paquete paquete = new Paquete();
+		
+		return providerRestTemplate.consumirServicio(paquete.articulosPaquete(request).getDatos(), urlGenericoConsulta, 
+				authentication);
+	}
+
+	@Override
+	public Response<?> agregarPaquete(DatosRequest request, Authentication authentication) throws IOException {
+		Gson gson = new Gson();
+
+		//String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		PaqueteDto paqueteDto = gson.fromJson((String) authentication.getPrincipal(), PaqueteDto.class);
+		
+		Paquete paquete = new Paquete(paqueteDto);
+		
+		return null;
+		//return providerRestTemplate.consumirServicio(paquete.insertar().getDatos(), urlGenericoCrear, 
+		//		authentication);
+	}
+
+	@Override
+	public Response<?> actualizarPaquete(DatosRequest request, Authentication authentication) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

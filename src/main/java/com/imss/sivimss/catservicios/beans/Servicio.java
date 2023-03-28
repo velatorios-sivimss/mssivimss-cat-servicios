@@ -14,10 +14,10 @@ import lombok.Setter;
 public class Servicio {
 
 	private Integer id;
+	private String servicio;
 	private Integer idTipo;
-	private String descripcion;
+	private String tipo;
 	private Float precio;
-	private Integer cantidad;
 	private Float costo;
 	
 }

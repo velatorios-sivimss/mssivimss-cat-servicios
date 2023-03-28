@@ -70,4 +70,32 @@ public class PaquetesController {
 		
 	}
 	
+	@PostMapping("/det-serv")
+	public Response<?> detalleServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		return paqueteService.detallePaqServicios(request, authentication);
+		
+	}
+	
+	@PostMapping("/det-arti")
+	public Response<?> detalleArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		return paqueteService.detallePaqArticulos(request, authentication);
+		
+	}
+	
+	@PostMapping("/agregar")
+	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		return paqueteService.agregarPaquete(request, authentication);
+		
+	}
+	
+	@PostMapping("/actualizar")
+	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		return paqueteService.actualizarPaquete(request, authentication);
+		
+	}
+	
 }
