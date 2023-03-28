@@ -1,8 +1,8 @@
 package com.imss.sivimss.catservicios.service.impl;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,9 +31,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
-
-	@Autowired
-	private ModelMapper modelMapper;
 	
 	Gson gson = new Gson();
 
@@ -47,11 +44,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
 		    promotores =new GestionarPromotores(promotoresRequest);
 			promotores.setIdUsuarioAlta(usuarioDto.getId());
-			
-			if(!promotoresRequest.getDesCurp().matches("[A-Z]{4}\\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9][0-9]")) {
-				throw new BadRequestException(HttpStatus.BAD_REQUEST, "Curp no valida: " +promotoresRequest.getDesCurp());
-			}
-			
+				
 			if(!validarCurp(promotoresRequest.getDesCurp(), authentication)) {
 				return providerRestTemplate.consumirServicio(promotores.insertar().getDatos(), urlDominioConsulta + "/generico/crearMultiple",
 						authentication);
@@ -72,7 +65,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		promotores.setIdUsuarioModifica(usuarioDto.getId());
 		promotores.setIdUsuarioBaja(usuarioDto.getId());
 		
-		Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizar().getDatos(), urlDominioConsulta + "/generico/actualizar",
+		Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizar().getDatos(), urlDominioConsulta + "/generico/actualizar ",
 				authentication);
 		log.info("codigo :" +response.getCodigo());
 		if(response.getCodigo()==200 && promotoresRequest.getFecPromotorDiasDescanso()!=null) {
@@ -98,7 +91,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
 		}
 		promotores= new GestionarPromotores(promotoresRequest);
-	//	velatorio.setIndEstatus(velatorioRequest.getIndEstatus());
 		promotores.setIdUsuarioBaja(usuarioDto.getId());
 		promotores.setIdUsuarioAlta(usuarioDto.getId());
 		return providerRestTemplate.consumirServicio(promotores.cambiarEstatus().getDatos(), urlDominioConsulta + "/generico/actualizar",
@@ -112,6 +104,12 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	}
 	
 	private boolean validarCurp(String desCurp, Authentication authentication) throws IOException {
+		String regex="[A-Z]{4}+\\d{6}+[HM]+[A-Z]{2}+[B-DF-HJ-NP-TV-Z]{3}+[A-Z0-9]+[0-9]";
+		Pattern patron = Pattern.compile(regex);
+		if(!patron.matcher(desCurp).matches()) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Curp no valida: " +desCurp);
+		}
+		
 		Response<?> response= providerRestTemplate.consumirServicio(promotores.buscarCurp(desCurp).getDatos(), urlDominioConsulta + "/generico/consulta",
 				authentication);
 		if (response.getCodigo()==200){
