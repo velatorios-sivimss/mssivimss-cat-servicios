@@ -34,7 +34,11 @@ public class Paquete {
 	private Float precio;
 	private Boolean isRegion;
 	private String claveSat;
+	private Integer idProducto;
 	private String producto;
+	private Integer idUsuarioAlta;
+	private Integer idUsuarioModifica;
+	private Integer idUsuarioBaja;
 	private Integer estatus;
 	
 	public Paquete(PaqueteDto paqueteDto) {
@@ -45,6 +49,7 @@ public class Paquete {
 		this.precio = paqueteDto.getPrecio();
 		this.isRegion = paqueteDto.getIsRegion();
 		this.claveSat = paqueteDto.getClaveSat();
+		this.idProducto = paqueteDto.getIdProducto();
 		this.producto = paqueteDto.getProducto();
 		this.estatus = paqueteDto.getEstatus();
 	}
@@ -123,7 +128,7 @@ public class Paquete {
 
     	String idPaquete = request.getDatos().get("id").toString();
 		StringBuilder query = new StringBuilder("SELECT p.ID_PAQUETE AS id, p.NOM_PAQUETE AS nomPaquete, p.DES_PAQUETE AS desPaquete, p.MON_COSTO_REFERENCIA AS costo, " +
-				 " p.MON_PRECIO AS precio, p.IDN_REGION AS isRegion, c.DES_UNIDAD_SAT AS claveSat, p.CVE_ESTATUS AS estatus, c.DES_PRODUCTOS_SERVICIOS AS producto ");
+				 " p.MON_PRECIO AS precio, p.IDN_REGION AS isRegion, c.DES_UNIDAD_SAT AS claveSat, c.ID_PRODUCTOS_SERVICIOS AS idProducto, c.DES_PRODUCTOS_SERVICIOS AS producto, p.CVE_ESTATUS AS estatus ");
 		query.append(" FROM SVT_PAQUETE p  LEFT JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS c ON p.ID_PRODUCTOS_SERVICIOS = c.ID_PRODUCTOS_SERVICIOS ");
 		query.append(" WHERE p.ID_PAQUETE = " + idPaquete);
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes());
@@ -170,7 +175,15 @@ public class Paquete {
 		Map<String, Object> parametro = new HashMap<>();
 
 		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PAQUETE");
-		q.agregarParametroValues("","");
+		q.agregarParametroValues("NOM_PAQUETE","'" + this.nomPaquete + "'");
+		q.agregarParametroValues("DES_PAQUETE","'" + this.desPaquete + "'");
+		q.agregarParametroValues("MON_COSTO_REFERENCIA","" + this.costo + "");
+		q.agregarParametroValues("MON_PRECIO","" + this.precio + "");
+		q.agregarParametroValues("IDN_REGION","" + this.isRegion + "");
+		q.agregarParametroValues("ID_PRODUCTOS_SERVICIOS","'" + this.idProducto + "'");
+		q.agregarParametroValues("CVE_ESTATUS", "1");
+		q.agregarParametroValues("FEC_ALTA", "CURRENT_TIMESTAMP()");
+		q.agregarParametroValues("ID_USUARIO_ALTA", "'" + this.idUsuarioAlta + "'");
 		
 		String query = q.obtenerQueryInsertar();
 		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());

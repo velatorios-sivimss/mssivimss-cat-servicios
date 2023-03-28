@@ -18,6 +18,7 @@ import com.imss.sivimss.catservicios.beans.Paquete;
 import com.imss.sivimss.catservicios.service.PaqueteService;
 import com.imss.sivimss.catservicios.util.DatosRequest;
 import com.imss.sivimss.catservicios.util.Response;
+import com.imss.sivimss.catservicios.model.request.UsuarioDto;
 import com.imss.sivimss.catservicios.util.ConvertirGenerico;
 import com.imss.sivimss.catservicios.util.AppConstantes;
 import com.imss.sivimss.catservicios.util.ProviderServiceRestTemplate;
@@ -143,14 +144,16 @@ public class PaqueteServiceImpl implements PaqueteService {
 	public Response<?> agregarPaquete(DatosRequest request, Authentication authentication) throws IOException {
 		Gson gson = new Gson();
 
-		//String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		PaqueteDto paqueteDto = gson.fromJson((String) authentication.getPrincipal(), PaqueteDto.class);
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		PaqueteDto paqueteDto = gson.fromJson(datosJson, PaqueteDto.class);
+		
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
 		
 		Paquete paquete = new Paquete(paqueteDto);
+		paquete.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		
-		return null;
-		//return providerRestTemplate.consumirServicio(paquete.insertar().getDatos(), urlGenericoCrear, 
-		//		authentication);
+		return providerRestTemplate.consumirServicio(paquete.insertar().getDatos(), urlGenericoCrear, 
+				authentication);
 	}
 
 	@Override

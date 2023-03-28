@@ -1,13 +1,19 @@
 package com.imss.sivimss.catservicios.model.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Setter
 @Getter
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreType(value = true)
 public class PaqueteDto {
 
 	private Integer id;
@@ -17,6 +23,7 @@ public class PaqueteDto {
 	private Float precio;
 	private Boolean isRegion;
 	private String claveSat;
+	private Integer idProducto;
 	private String producto;
 	private Integer estatus;
 	
