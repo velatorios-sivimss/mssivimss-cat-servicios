@@ -1,6 +1,11 @@
 package com.imss.sivimss.catservicios.service.impl;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +38,22 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	private ProviderServiceRestTemplate providerRestTemplate;
 	
 	Gson gson = new Gson();
-
 	GestionarPromotores promotores=new GestionarPromotores();
 	
 	@Override
-	public Response<?> agregarPromotor(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> agregarPromotor(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 	
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		PromotoresRequest promotoresRequest = gson.fromJson(datosJson, PromotoresRequest.class);	
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		    promotores =new GestionarPromotores(promotoresRequest);
+		 promotores =new GestionarPromotores(promotoresRequest);
+		Date datef = new SimpleDateFormat("dd/MM/yyyy").parse(promotoresRequest.getFecIngreso());
+	        DateFormat fecIngreso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+	        Date dateNac = new SimpleDateFormat("dd/MM/yyyy").parse(promotoresRequest.getFecNacimiento());
+	        DateFormat fecNacimiento = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+		    promotores.setFecIngreso(fecIngreso.format(datef));
+		    promotores.setFecNacimiento(fecNacimiento.format(dateNac));
+		   
 			promotores.setIdUsuarioAlta(usuarioDto.getId());
 				
 			if(!validarCurp(promotoresRequest.getDesCurp(), authentication)) {

@@ -1,6 +1,7 @@
 package com.imss.sivimss.catservicios.controller;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ public class GestionarPromotoresController {
 	private GestionarPromotoresService gestionarPromotoresService;
 	
 	@PostMapping("/agregar")
-	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException{
+	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException{
 	
 		return gestionarPromotoresService.agregarPromotor(request,authentication);
 	}

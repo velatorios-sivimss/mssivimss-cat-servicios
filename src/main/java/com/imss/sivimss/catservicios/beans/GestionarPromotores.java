@@ -1,8 +1,12 @@
 package com.imss.sivimss.catservicios.beans;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
@@ -59,8 +63,8 @@ public class GestionarPromotores {
 		this.nomPromotor = promotoresRequest.getNomPromotor();
 		this.aPaterno = promotoresRequest.getAPaterno();
 		this.aMaterno = promotoresRequest.getAMaterno();
-		this.fecNacimiento = promotoresRequest.getFecNacimiento();
-		this.fecIngreso = promotoresRequest.getFecIngreso();
+		//this.fecNacimiento = promotoresRequest.getFecNacimiento();
+		//this.fecIngreso = promotoresRequest.getFecIngreso();
 		this.monSueldoBase = promotoresRequest.getMonSueldoBase();
 		this.idVelatorio = promotoresRequest.getIdVelatorio();
 		this.desCorreo = promotoresRequest.getDesCorreo();
@@ -72,7 +76,7 @@ public class GestionarPromotores {
 	}
 
 
-	public DatosRequest insertar() {
+	public DatosRequest insertar() throws ParseException {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PROMOTOR");
@@ -81,8 +85,8 @@ public class GestionarPromotores {
 		q.agregarParametroValues("NOM_PROMOTOR", "'" + this.nomPromotor + "'");
 		q.agregarParametroValues("NOM_PAPELLIDO", "'" + this.aPaterno + "'");
 		q.agregarParametroValues("NOM_SAPELLIDO", "'"+ this.aMaterno + "'");
-		q.agregarParametroValues("FEC_NACIMIENTO", "'" + this.fecNacimiento +"'");
-		q.agregarParametroValues("FEC_INGRESO", "'" + this.fecIngreso +"'");
+		q.agregarParametroValues("FEC_NACIMIENTO", "'" +fecNacimiento +"'");
+		q.agregarParametroValues("FEC_INGRESO", "'" +fecIngreso +"'");
 		q.agregarParametroValues("MON_SUELDOBASE", ""+ this.monSueldoBase +"");
 		q.agregarParametroValues("ID_VELATORIO", "" + this.idVelatorio + "");
 		q.agregarParametroValues("DES_CORREO", "'" + this.desCorreo + "'");
@@ -97,7 +101,10 @@ public class GestionarPromotores {
 		StringBuilder queries= new StringBuilder();
 		queries.append(query);
 		for(int i=0; i<this.fecPromotorDiasDescanso.size(); i++) {
-			queries.append(" $$ " + insertarDiasDescanso(this.fecPromotorDiasDescanso.get(i)));
+			Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(this.fecPromotorDiasDescanso.get(i));
+	        DateFormat fechaDescanso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+	        String fecha=fechaDescanso.format(dateF);
+			queries.append(" $$ " + insertarDiasDescanso(fecha));
 			  String encoded = DatatypeConverter.printBase64Binary(queries.toString().getBytes());
 		        parametro.put(AppConstantes.QUERY, encoded);
 		        parametro.put("separador","$$");
