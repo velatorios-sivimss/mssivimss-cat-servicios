@@ -75,22 +75,10 @@ public class RestTemplateUtil {
 
 		HttpEntity<Object> request = new HttpEntity<>(body, headers);
 		ResponseEntity<?> responseEntity = null;
-		try {
-			responseEntity = restTemplate.postForEntity(url, request, clazz);
-			if (responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null) {
-				// noinspection unchecked
-				responseBody = (Response<List<String>>) responseEntity.getBody();
-			} else {
-				throw new IOException("Ha ocurrido un error al enviar");
-			}
-		} catch (IOException ioException) {
-			throw ioException;
-		} catch (Exception e) {
-			log.error("Fallo al consumir el servicio, {}", e.getMessage());
-			responseBody.setCodigo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-			responseBody.setError(true);
-			responseBody.setMensaje(e.getMessage());
-		}
+
+		responseEntity = restTemplate.postForEntity(url, request, clazz);
+
+		responseBody = (Response<List<String>>) responseEntity.getBody();
 
 		return responseBody;
 	}
@@ -200,21 +188,8 @@ public class RestTemplateUtil {
 
 		HttpEntity<Object> request = new HttpEntity<>(body, headers);
 		ResponseEntity<?> responseEntity = null;
-		try {
-			responseEntity = restTemplate.postForEntity(url, request, clazz);
-			if (responseEntity.getStatusCode() == HttpStatus.OK && responseEntity.getBody() != null) {
-				responseBody = (Response<List<String>>) responseEntity.getBody();
-			} else {
-				throw new IOException("Ha ocurrido un error al enviar");
-			}
-		} catch (IOException ioException) {
-			throw ioException;
-		} catch (Exception e) {
-			log.error("Fallo al consumir el servicio, {}", e.getMessage());
-			responseBody.setCodigo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-			responseBody.setError(true);
-			responseBody.setMensaje(e.getMessage());
-		}
+		responseEntity = restTemplate.postForEntity(url, request, clazz);
+		responseBody = (Response<List<String>>) responseEntity.getBody();
 
 		return responseBody;
 	}

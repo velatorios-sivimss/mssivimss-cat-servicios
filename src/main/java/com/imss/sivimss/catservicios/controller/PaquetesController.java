@@ -1,7 +1,11 @@
 package com.imss.sivimss.catservicios.controller;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,99 +14,158 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.imss.sivimss.catservicios.service.PaqueteService;
 import com.imss.sivimss.catservicios.util.DatosRequest;
+import com.imss.sivimss.catservicios.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.catservicios.util.Response;
 
-import lombok.AllArgsConstructor;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/paquetes")
 public class PaquetesController {
 	
+	@Autowired
 	private PaqueteService paqueteService;
 	
+	@Autowired
+	private ProviderServiceRestTemplate providerRestTemplate;
+	
+	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@TimeLimiter(name = "msflujo")
 	@PostMapping("/consulta")
-	public Response<?> consultaLista(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> consultaLista(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.consultarPaquetes(request, authentication);
+		Response<?> response = paqueteService.consultarPaquetes(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/buscar")
-	public Response<?> buscar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> buscar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.buscarPaquetes(request, authentication);
+		Response<?> response = paqueteService.buscarPaquetes(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/cat-serv")
-	public Response<?> catalogoServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> catalogoServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.catalogoServicios(request, authentication);
+		Response<?> response = paqueteService.catalogoServicios(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 
 	@PostMapping("/cat-arti")
-	public Response<?> catalogoArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> catalogoArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.catalogoArticulos(request, authentication);
+		Response<?> response = paqueteService.catalogoArticulos(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/servicios")
-	public Response<?> listaServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> listaServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.listadoServicios(request, authentication);
+		Response<?> response = paqueteService.listadoServicios(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 
 	@PostMapping("/articulos")
-	public Response<?> listaArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> listaArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.listadoArticulos(request, authentication);
+		Response<?> response = paqueteService.listadoArticulos(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/detalle")
-	public Response<?> detalle(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> detalle(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.detallePaquete(request, authentication);
+		Response<?> response = paqueteService.detallePaquete(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/det-serv")
-	public Response<?> detalleServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> detalleServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.detallePaqServicios(request, authentication);
+		Response<?> response = paqueteService.detallePaqServicios(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/det-arti")
-	public Response<?> detalleArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> detalleArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.detallePaqArticulos(request, authentication);
+		Response<?> response = paqueteService.detallePaqArticulos(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/agregar")
-	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.agregarPaquete(request, authentication);
+		Response<?> response = paqueteService.agregarPaquete(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 	
 	@PostMapping("/actualizar")
-	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.actualizarPaquete(request, authentication);
-		
+		Response<?> response = paqueteService.actualizarPaquete(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
 	@PostMapping("/cambiar-estatus")
-	public Response<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public CompletableFuture<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		return paqueteService.cambiarEstatusPaquete(request, authentication);
+		Response<?> response = paqueteService.cambiarEstatusPaquete(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
+	}
+	
+	/**
+	 * fallbacks generico
+	 * 
+	 * @return respuestas
+	 */
+	private CompletableFuture<?> fallbackGenerico(@RequestBody DatosRequest request, Authentication authentication,
+			CallNotPermittedException e) {
+		Response<?> response = providerRestTemplate.respuestaProvider(e.getMessage());
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+
+	private CompletableFuture<?> fallbackGenerico(@RequestBody DatosRequest request, Authentication authentication,
+			RuntimeException e) {
+		Response<?> response = providerRestTemplate.respuestaProvider(e.getMessage());
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+
+	private CompletableFuture<?> fallbackGenerico(@RequestBody DatosRequest request, Authentication authentication,
+			NumberFormatException e) {
+		Response<?> response = providerRestTemplate.respuestaProvider(e.getMessage());
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
 }

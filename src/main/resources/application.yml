@@ -43,3 +43,34 @@ jwt:
   secretkey-flujo: funcionamuybien
   secretkey-dominios: funcionamuybiendominio
   expiration-milliseconds: 360
+  
+management:
+      endpoints:
+          web:
+            exposure:
+                include:
+                    health,info,metrics
+
+resilience4j.circuitbreaker:
+    circuitBreakerAspectOrder: 1
+    instances:
+      msflujo:
+        automaticTransitionFromOpenToHalfOpenEnabled: 'true'
+        failureRateThreshold: '50'
+        slidingWindowType: COUNT_BASED
+        event-consumer-buffer-size: '10'
+        registerHealthIndicator: 'true'
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: '3'
+        slidingWindowSize: '5'
+resilience4j.retry:
+    retryAspectOrder: 2
+    instances:
+        msflujo:
+           maxAttempts: 3
+           waitDuration: 5s
+resilience4j.timelimiter:
+    timeLimiterAspectOrder: 3
+    instances:
+      msflujo:
+        timeout-duration: 3s
