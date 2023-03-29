@@ -19,5 +19,7 @@ public interface GestionarPromotoresService {
 
 	Response<?> busquedas(DatosRequest request, Authentication authentication) throws IOException;
 
+	Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException;
+
 
 }

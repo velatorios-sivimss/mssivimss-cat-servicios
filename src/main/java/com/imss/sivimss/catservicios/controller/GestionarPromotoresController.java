@@ -1,7 +1,6 @@
 package com.imss.sivimss.catservicios.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -41,6 +40,13 @@ public class GestionarPromotoresController {
 	public Response<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	
 		return gestionarPromotoresService.cambiarEstatusPromotor(request,authentication);
+      
+	}
+	
+	@PostMapping("/estatus-descansos")
+	public Response<?> cambiarEstatusFechasDescansos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.cambiarEstatusDescansos(request,authentication);
       
 	}
 	

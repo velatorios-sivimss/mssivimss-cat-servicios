@@ -127,6 +127,19 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				authentication);
 	}
 
-	
-
+	@Override
+	public Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException {
+		 Response<?> response=null;
+		PromotoresRequest promotoresRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PromotoresRequest.class);
+		
+		if (promotoresRequest.getIdPromotor()== null || promotoresRequest.getFecPromotorDiasDescanso()==null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		}
+		promotores= new GestionarPromotores(promotoresRequest);
+		for(int i=0; i<promotoresRequest.getFecPromotorDiasDescanso().size(); i++) {
+		response = providerRestTemplate.consumirServicio(promotores.cambiarEstatusDescansos(promotoresRequest.getFecPromotorDiasDescanso().get(i), promotoresRequest.getIdPromotor()).getDatos(), urlDominioConsulta + "/generico/actualizar",
+				authentication);
+		}
+		return response;
+	}	
 		}

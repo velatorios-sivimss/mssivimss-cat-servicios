@@ -253,4 +253,19 @@ public class GestionarPromotores {
 		return request;
 	}
 
+
+	public DatosRequest cambiarEstatusDescansos(String fechasDescansos, Integer idPromotor) {
+		
+		DatosRequest request = new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		String query = "UPDATE SVT_PROMOTOR_DIAS_DESCANSO SET IND_ESTATUS= 0 "
+				+ " WHERE ID_PROMOTOR= "+ idPromotor +" AND FEC_PROMOTOR_DIAS_DESCANSO= '"+fechasDescansos+"' " ;
+		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		log.info("estoy en: " +query);
+		parametro.put(AppConstantes.QUERY, encoded);
+		request.setDatos(parametro);
+		return request;
+		
+	}
+
 }
