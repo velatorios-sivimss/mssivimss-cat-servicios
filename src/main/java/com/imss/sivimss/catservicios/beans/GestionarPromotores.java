@@ -211,10 +211,14 @@ public class GestionarPromotores {
 	public DatosRequest catalogoPromotores(DatosRequest request) {
 		String query ="SELECT SP.ID_PROMOTOR AS idPromotor, SP.NUM_EMPLEDO AS numEmpleado, SP.DES_CURP AS curp, "
 				+ "SP.NOM_PROMOTOR AS nomPromotor, SP.NOM_PAPELLIDO AS apellidoP, SP.NOM_SAPELLIDO AS apellidoM, "
-				+ "SP.FEC_NACIMIENTO AS fecNacimiento, SP.FEC_INGRESO AS fecIngreso, SP.FEC_BAJA AS fecBaja, "
+				+ "DATE_FORMAT(SP.FEC_NACIMIENTO, \"%d/%m/%Y\") AS fecNacimiento, "
+				+ "DATE_FORMAT(SP.FEC_INGRESO, \"%d/%m/%Y\") AS fecIngreso, "
+				+ "TIMESTAMPDIFF(MONTH, SP.FEC_INGRESO, CURRENT_TIMESTAMP()) AS antiguedad, "
+				+ "DATE_FORMAT(SP.FEC_BAJA, \"%d/%m/%Y\") AS fecBaja, "
 				+ "SP.MON_SUELDOBASE AS sueldoBase, SP.ID_VELATORIO AS idVelatorio, SV.NOM_VELATORIO AS velatorio, SP.DES_CORREO AS correo, "
 				+ " SP.DES_PUESTO AS puesto, SP.DES_CATEGORIA AS categoria, SP.IND_ESTATUS AS estatus, SP.ID_DELEGACION AS idDelegacion, "
-				+ " SD.DES_DELEGACION AS delegacion, SPDD.FEC_PROMOTOR_DIAS_DESCANSO AS fecDescansos "
+				+ " SD.DES_DELEGACION AS delegacion, "
+				+ "DATE_FORMAT(SPDD.FEC_PROMOTOR_DIAS_DESCANSO, \"%d/%m/%Y\") AS fecDescansos "
 		//+ "(SELECT FEC_PROMOTOR_DIAS_DESCANSO FROM SVT_PROMOTOR_DIAS_DESCANSO LIMIT 1) AS fecDescansos "
 		+ "FROM SVT_PROMOTOR SP "
 		+ "JOIN SVT_PROMOTOR_DIAS_DESCANSO SPDD ON SPDD.ID_PROMOTOR = SP.ID_PROMOTOR "
@@ -229,16 +233,20 @@ public class GestionarPromotores {
 
 	public DatosRequest filtrosBusqueda(DatosRequest request, BuscarPromotoresRequest buscar) {
 		  StringBuilder queries = new StringBuilder();
-		String query ="SELECT SP.ID_PROMOTOR AS idPromotor, SP.NUM_EMPLEDO AS numEmpleado, SP.DES_CURP AS curp, "
-				+ "SP.NOM_PROMOTOR AS nomPromotor, SP.NOM_PAPELLIDO AS apellidoP, SP.NOM_SAPELLIDO AS apellidoM, "
-				+ "SP.FEC_NACIMIENTO AS fecNacimiento, SP.FEC_INGRESO AS fecIngreso, SP.FEC_BAJA AS fecBaja, "
-				+ "SP.MON_SUELDOBASE AS sueldoBase, SP.ID_VELATORIO AS idVelatorio, SV.NOM_VELATORIO AS velatorio, SP.DES_CORREO AS correo, "
-				+ " SP.DES_PUESTO AS puesto, SP.DES_CATEGORIA AS categoria, SP.IND_ESTATUS AS estatus, SP.ID_DELEGACION AS idDelegacion, "
-				+ " SD.DES_DELEGACION AS delegacion, SPDD.FEC_PROMOTOR_DIAS_DESCANSO AS fecDescansos "
-		+ "FROM SVT_PROMOTOR SP "
-		+ "JOIN SVT_PROMOTOR_DIAS_DESCANSO SPDD ON SPDD.ID_PROMOTOR = SP.ID_PROMOTOR "
-		+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SP.ID_VELATORIO "
-		+ "JOIN SVC_DELEGACION SD ON SD.ID_DELEGACION = SP.ID_DELEGACION WHERE SPDD.IND_ESTATUS= 1 ";
+		  String query ="SELECT SP.ID_PROMOTOR AS idPromotor, SP.NUM_EMPLEDO AS numEmpleado, SP.DES_CURP AS curp, "
+					+ "SP.NOM_PROMOTOR AS nomPromotor, SP.NOM_PAPELLIDO AS apellidoP, SP.NOM_SAPELLIDO AS apellidoM, "
+					+ "DATE_FORMAT(SP.FEC_NACIMIENTO, \"%d/%m/%Y\") AS fecNacimiento, "
+					+ "DATE_FORMAT(SP.FEC_INGRESO, \"%d/%m/%Y\") AS fecIngreso, "
+					+ "TIMESTAMPDIFF(MONTH, SP.FEC_INGRESO, CURRENT_TIMESTAMP()) AS antiguedad, "
+					+ "DATE_FORMAT(SP.FEC_BAJA, \"%d/%m/%Y\") AS fecBaja, "
+					+ "SP.MON_SUELDOBASE AS sueldoBase, SP.ID_VELATORIO AS idVelatorio, SV.NOM_VELATORIO AS velatorio, SP.DES_CORREO AS correo, "
+					+ " SP.DES_PUESTO AS puesto, SP.DES_CATEGORIA AS categoria, SP.IND_ESTATUS AS estatus, SP.ID_DELEGACION AS idDelegacion, "
+					+ " SD.DES_DELEGACION AS delegacion, "
+					+ "DATE_FORMAT(SPDD.FEC_PROMOTOR_DIAS_DESCANSO, \"%d/%m/%Y\") AS fecDescansos "
+			+ "FROM SVT_PROMOTOR SP "
+			+ "JOIN SVT_PROMOTOR_DIAS_DESCANSO SPDD ON SPDD.ID_PROMOTOR = SP.ID_PROMOTOR "
+			+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SP.ID_VELATORIO "
+			+ "JOIN SVC_DELEGACION SD ON SD.ID_DELEGACION = SP.ID_DELEGACION WHERE SPDD.IND_ESTATUS= 1 ";
 		queries.append(query);
 		if(buscar.getDelegacion()!=null && buscar.getVelatorio()==null && buscar.getPromotor()==null) {
 			queries.append(" AND SD.DES_DELEGACION LIKE '%"+ buscar.getDelegacion() + "%'");
