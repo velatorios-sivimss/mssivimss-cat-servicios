@@ -98,4 +98,11 @@ public class PaquetesController {
 		
 	}
 	
+	@PostMapping("/cambiar-estatus")
+	public Response<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		return paqueteService.cambiarEstatusPaquete(request, authentication);
+		
+	}
+	
 }

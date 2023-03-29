@@ -28,8 +28,8 @@ public class Paquete {
 	private Integer id;
 	private String nomPaquete;
 	private String desPaquete;
-	//private ArrayList<Articulo> articulos;
-	//private ArrayList<Servicio> servicios;
+	private ArrayList<Articulo> articulos;
+	private ArrayList<Servicio> servicios;
 	private Float costo;
 	private Float precio;
 	private Boolean isRegion;
@@ -128,7 +128,8 @@ public class Paquete {
 
     	String idPaquete = request.getDatos().get("id").toString();
 		StringBuilder query = new StringBuilder("SELECT p.ID_PAQUETE AS id, p.NOM_PAQUETE AS nomPaquete, p.DES_PAQUETE AS desPaquete, p.MON_COSTO_REFERENCIA AS costo, " +
-				 " p.MON_PRECIO AS precio, p.IDN_REGION AS isRegion, c.DES_UNIDAD_SAT AS claveSat, c.ID_PRODUCTOS_SERVICIOS AS idProducto, c.DES_PRODUCTOS_SERVICIOS AS producto, p.CVE_ESTATUS AS estatus ");
+				 " p.MON_PRECIO AS precio, p.IDN_REGION AS isRegion, c.DES_UNIDAD_SAT AS claveSat, c.ID_PRODUCTOS_SERVICIOS AS idProducto, c.DES_PRODUCTOS_SERVICIOS AS producto, " +
+				 " p.CVE_ESTATUS AS estatus ");
 		query.append(" FROM SVT_PAQUETE p  LEFT JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS c ON p.ID_PRODUCTOS_SERVICIOS = c.ID_PRODUCTOS_SERVICIOS ");
 		query.append(" WHERE p.ID_PAQUETE = " + idPaquete);
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes());
@@ -192,5 +193,61 @@ public class Paquete {
 
 		return request;
 	}
+    
+    private DatosRequest insertarArticulos() {
+    	DatosRequest request = new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		
+		final QueryHelper q = new QueryHelper("");
+		for (Articulo articulo : this.articulos) {
+		   q.agregarParametroValues("INSERT INTO SVT_PAQUETE_ARTICULO ", "");
+		   q.agregarParametroValues("ID_ARTICULO", articulo.getArticulo());
+		   q.agregarParametroValues("ID_PAQUETE", this.id.toString());
+		   q.agregarParametroValues("CVE_ESTATUS", "1");
+		}
+		   
+		String query = q.obtenerQueryInsertar();
+		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		parametro.put(AppConstantes.QUERY, encoded);
+		request.setDatos(parametro);
+		
+		return request;
+		
+    }
+    
+    public DatosRequest actualizar() {
+		DatosRequest request = new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		
+		final QueryHelper q = new QueryHelper("UPDATE SVT_PAQUETE");
+		q.agregarParametroValues("NOM_PAQUETE","'" + this.nomPaquete + "'");
+		q.agregarParametroValues("DES_PAQUETE","'" + this.desPaquete + "'");
+		q.agregarParametroValues("MON_COSTO_REFERENCIA","" + this.costo + "");
+		q.agregarParametroValues("MON_PRECIO","" + this.precio + "");
+		q.agregarParametroValues("IDN_REGION","" + this.isRegion + "");
+		q.agregarParametroValues("ID_PRODUCTOS_SERVICIOS","'" + this.idProducto + "'");
+		q.agregarParametroValues("ID_USUARIO_MODIFICA", "'" + this.idUsuarioModifica + "'");
+		q.agregarParametroValues("FEC_ACTUALIZACION", "CURRENT_TIMESTAMP()");
+		q.addWhere("ID_PAQUETE = " + this.id);
+		
+		String query = q.obtenerQueryActualizar();
+		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		parametro.put(AppConstantes.QUERY, encoded);
+		request.setDatos(parametro);
+		return request;
+		
+	}
+    
+    public DatosRequest cambiarEstatus() {
+		DatosRequest request = new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		String query = "UPDATE SVT_PAQUETE SET CVE_ESTATUS=!CVE_ESTATUS , FEC_BAJA=CURRENT_TIMESTAMP(), ID_USUARIO_BAJA='"
+				+ this.idUsuarioBaja + "' WHERE ID_PAQUETE = " + this.id + ";";
+		
+		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		parametro.put(AppConstantes.QUERY, encoded);
+		request.setDatos(parametro);
+		return request;
+    }
     
 }

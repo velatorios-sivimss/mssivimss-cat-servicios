@@ -9,12 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.imss.sivimss.catservicios.beans.BusquedaDto;
 import com.imss.sivimss.catservicios.beans.Paquete;
+import com.imss.sivimss.catservicios.exception.BadRequestException;
 import com.imss.sivimss.catservicios.service.PaqueteService;
 import com.imss.sivimss.catservicios.util.DatosRequest;
 import com.imss.sivimss.catservicios.util.Response;
@@ -158,8 +160,42 @@ public class PaqueteServiceImpl implements PaqueteService {
 
 	@Override
 	public Response<?> actualizarPaquete(DatosRequest request, Authentication authentication) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		Gson gson = new Gson();
+
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		PaqueteDto paqueteDto = gson.fromJson(datosJson, PaqueteDto.class);
+		
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		
+		if (paqueteDto.getId() == null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		}
+		Paquete paquete = new Paquete(paqueteDto);
+		paquete.setIdUsuarioModifica(usuarioDto.getIdUsuario());
+	
+		return providerRestTemplate.consumirServicio(paquete.actualizar().getDatos(), urlGenericoCrear, 
+				authentication);
+	
+	}
+	
+	@Override
+	public Response<?> cambiarEstatusPaquete(DatosRequest request, Authentication authentication) throws IOException {
+		Gson gson = new Gson();
+
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		PaqueteDto paqueteDto = gson.fromJson(datosJson, PaqueteDto.class);
+		
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		
+		if (paqueteDto.getId() == null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		}
+		Paquete paquete = new Paquete(paqueteDto);
+		paquete.setIdUsuarioBaja(usuarioDto.getIdUsuario());
+	
+		return providerRestTemplate.consumirServicio(paquete.cambiarEstatus().getDatos(), urlGenericoCrear, 
+				authentication);
+	
 	}
 	
 }

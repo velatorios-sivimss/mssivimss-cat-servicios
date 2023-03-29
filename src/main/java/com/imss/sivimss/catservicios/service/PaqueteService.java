@@ -31,5 +31,7 @@ public interface PaqueteService {
 	Response<?> agregarPaquete(DatosRequest request, Authentication authentication) throws IOException;
 
 	Response<?> actualizarPaquete(DatosRequest request, Authentication authentication) throws IOException;
+	
+	Response<?> cambiarEstatusPaquete(DatosRequest request, Authentication authentication) throws IOException;
 
 }
