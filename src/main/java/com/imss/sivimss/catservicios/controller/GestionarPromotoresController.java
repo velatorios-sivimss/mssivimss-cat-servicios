@@ -31,7 +31,7 @@ public class GestionarPromotoresController {
 	}
 	
 	@PostMapping("/actualiza")
-	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
 		return gestionarPromotoresService.actualizarPromotor(request,authentication);
       
@@ -45,7 +45,7 @@ public class GestionarPromotoresController {
 	}
 	
 	@PostMapping("/estatus-descansos")
-	public Response<?> cambiarEstatusFechasDescansos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	public Response<?> cambiarEstatusFechasDescansos(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
 		return gestionarPromotoresService.cambiarEstatusDescansos(request,authentication);
       

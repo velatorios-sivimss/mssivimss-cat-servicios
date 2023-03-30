@@ -46,14 +46,9 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		PromotoresRequest promotoresRequest = gson.fromJson(datosJson, PromotoresRequest.class);	
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		 promotores =new GestionarPromotores(promotoresRequest);
-		Date datef = new SimpleDateFormat("dd/MM/yyyy").parse(promotoresRequest.getFecIngreso());
-	        DateFormat fecIngreso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
-	        Date dateNac = new SimpleDateFormat("dd/MM/yyyy").parse(promotoresRequest.getFecNacimiento());
-	        DateFormat fecNacimiento = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
-		    promotores.setFecIngreso(fecIngreso.format(datef));
-		    promotores.setFecNacimiento(fecNacimiento.format(dateNac));
-		   
+		    promotores=new GestionarPromotores(promotoresRequest);
+		    promotores.setFecIngreso(formatFecha(promotoresRequest.getFecIngreso()));
+		    promotores.setFecNacimiento(formatFecha(promotoresRequest.getFecNacimiento()));
 			promotores.setIdUsuarioAlta(usuarioDto.getId());
 				
 			if(!validarCurp(promotoresRequest.getDesCurp(), authentication)) {
@@ -64,15 +59,18 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	      
 }
 
+	
+
 	@Override
-	public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
 		PromotoresRequest promotoresRequest = gson.fromJson( String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PromotoresRequest.class);
 		
 		if (promotoresRequest.getIdPromotor() == null ) {
-			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta ");
 		}
 		promotores= new GestionarPromotores(promotoresRequest);
+		promotores.setFecIngreso(formatFecha(promotoresRequest.getFecIngreso()));
 		promotores.setIdUsuarioModifica(usuarioDto.getId());
 		promotores.setIdUsuarioBaja(usuarioDto.getId());
 		
@@ -81,9 +79,10 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		log.info("codigo :" +response.getCodigo());
 		if(response.getCodigo()==200 && promotoresRequest.getFecPromotorDiasDescanso()!=null) {
 			for(int i=0; i<promotoresRequest.getFecPromotorDiasDescanso().size(); i++) {
-			log.info("fechas " +promotores.getFecPromotorDiasDescanso().get(i));
-			 providerRestTemplate.consumirServicio(promotores.actualizarDiasDescanso(promotores.getFecPromotorDiasDescanso().get(i), promotores.getIdPromotor()).getDatos(),
-                     urlDominioConsulta + "/generico/actualizar", authentication);
+				String fecha = formatFecha(promotores.getFecPromotorDiasDescanso().get(i));
+			log.info("fechas " +fecha);
+			 providerRestTemplate.consumirServicio(promotores.actualizarDiasDescanso(fecha, promotores.getIdPromotor()).getDatos(),
+                     urlDominioConsulta + "/generico/actualizar ", authentication);
 			}
 			}else if(response.getCodigo()==200) {
 					return response;
@@ -139,7 +138,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	}
 
 	@Override
-	public Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		 Response<?> response=null;
 		PromotoresRequest promotoresRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PromotoresRequest.class);
 		
@@ -148,9 +147,16 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		}
 		promotores= new GestionarPromotores(promotoresRequest);
 		for(int i=0; i<promotoresRequest.getFecPromotorDiasDescanso().size(); i++) {
-		response = providerRestTemplate.consumirServicio(promotores.cambiarEstatusDescansos(promotoresRequest.getFecPromotorDiasDescanso().get(i), promotoresRequest.getIdPromotor()).getDatos(), urlDominioConsulta + "/generico/actualizar",
+			String fecha=formatFecha(promotoresRequest.getFecPromotorDiasDescanso().get(i));
+		response = providerRestTemplate.consumirServicio(promotores.cambiarEstatusDescansos(fecha, promotoresRequest.getIdPromotor()).getDatos(), urlDominioConsulta + "/generico/actualizar",
 				authentication);
 		}
 		return response;
 	}	
+	
+	    public String formatFecha(String fecha) throws ParseException {
+		Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(fecha);
+		DateFormat fecFormat = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+		return fecFormat.format(dateF);       
+	}
 		}

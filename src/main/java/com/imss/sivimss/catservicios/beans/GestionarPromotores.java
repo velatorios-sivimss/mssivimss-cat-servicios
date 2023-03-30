@@ -140,6 +140,7 @@ public class GestionarPromotores {
 			String encoded=DatatypeConverter.printBase64Binary(query.getBytes());
 			parametro.put(AppConstantes.QUERY, encoded);
 			request.setDatos(parametro);
+			request.getDatos().remove(""+AppConstantes.DATOS+"");
 			return request;
 	}
 
@@ -148,7 +149,7 @@ public class GestionarPromotores {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("UPDATE SVT_PROMOTOR");
-		q.agregarParametroValues("FEC_INGRESO", "'" + this.fecIngreso +"'");
+		q.agregarParametroValues("FEC_INGRESO", "'" + fecIngreso +"'");
 		q.agregarParametroValues("MON_SUELDOBASE", ""+ this.monSueldoBase +"");
 		q.agregarParametroValues("ID_VELATORIO", "" + this.idVelatorio + "");
 		q.agregarParametroValues("DES_CORREO", "'" + this.desCorreo + "'");
@@ -227,6 +228,7 @@ public class GestionarPromotores {
 		+ "WHERE SPDD.IND_ESTATUS= 1 ";
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
 		log.info(query);
+		request.getDatos().remove(""+AppConstantes.DATOS+"");
 		return request;
 	}
 
@@ -265,6 +267,7 @@ public class GestionarPromotores {
 		}
 		log.info(queries.toString());
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(queries.toString().getBytes()));
+		request.getDatos().remove(""+AppConstantes.DATOS+"");
 		return request;
 	}
 
