@@ -1,5 +1,7 @@
 package com.imss.sivimss.catservicios.model.request;
 
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import lombok.AllArgsConstructor;
@@ -19,6 +21,8 @@ public class PaqueteDto {
 	private Integer id;
 	private String nomPaquete;
 	private String desPaquete;
+	private ArrayList<Integer> articulos;
+	private ArrayList<Integer> servicios;
 	private Float costo;
 	private Float precio;
 	private Boolean isRegion;

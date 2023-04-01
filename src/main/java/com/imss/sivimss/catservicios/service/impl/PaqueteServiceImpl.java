@@ -43,6 +43,9 @@ public class PaqueteServiceImpl implements PaqueteService {
 	
 	@Value("${endpoints.generico-actualizar}")
 	private String urlGenericoActualizar;
+	
+	@Value("${endpoints.generico-multiple}")
+	private String urlGenericoMultiple;
 
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
@@ -75,10 +78,10 @@ public class PaqueteServiceImpl implements PaqueteService {
 	}
 
 	@Override
-	public Response<?> catalogoServicios(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> tiposServicios(DatosRequest request, Authentication authentication) throws IOException {
 		Paquete paquete = new Paquete();
 		List<TipoServicioResponse> servicioResponse;
-		Response<?> response = providerRestTemplate.consumirServicio(paquete.catalogoServicios().getDatos(), urlGenericoConsulta, 
+		Response<?> response = providerRestTemplate.consumirServicio(paquete.tiposServicios().getDatos(), urlGenericoConsulta, 
 				authentication);
 		if (response.getCodigo() == 200) {
 			servicioResponse = Arrays.asList(modelMapper.map(response.getDatos(), TipoServicioResponse[].class));
@@ -88,10 +91,10 @@ public class PaqueteServiceImpl implements PaqueteService {
 	}
 
 	@Override
-	public Response<?> catalogoArticulos(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<?> tiposArticulos(DatosRequest request, Authentication authentication) throws IOException {
 		Paquete paquete = new Paquete();
 		List<TipoArticuloResponse> articuloResponse;
-		Response<?> response = providerRestTemplate.consumirServicio(paquete.catalogoArticulos().getDatos(), urlGenericoConsulta, 
+		Response<?> response = providerRestTemplate.consumirServicio(paquete.tiposArticulos().getDatos(), urlGenericoConsulta, 
 				authentication);
 		if (response.getCodigo() == 200) {
 			articuloResponse = Arrays.asList(modelMapper.map(response.getDatos(), TipoArticuloResponse[].class));
@@ -157,6 +160,24 @@ public class PaqueteServiceImpl implements PaqueteService {
 		return providerRestTemplate.consumirServicio(paquete.insertar().getDatos(), urlGenericoCrear, 
 				authentication);
 	}
+	
+	
+	@Override
+	public Response<?> agregarArtServ(DatosRequest request, Authentication authentication) throws IOException {
+		Gson gson = new Gson();
+
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		PaqueteDto paqueteDto = gson.fromJson(datosJson, PaqueteDto.class);
+		
+		if (paqueteDto.getId() == null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		}
+		Paquete paquete = new Paquete(paqueteDto);
+		
+		return providerRestTemplate.consumirServicio(paquete.insertarArtServ().getDatos(), urlGenericoMultiple, 
+				authentication);
+	}
+		
 
 	@Override
 	public Response<?> actualizarPaquete(DatosRequest request, Authentication authentication) throws IOException {

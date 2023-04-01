@@ -53,19 +53,19 @@ public class PaquetesController {
 		
 	}
 	
-	@PostMapping("/cat-serv")
-	public CompletableFuture<?> catalogoServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	@PostMapping("/tip-serv")
+	public CompletableFuture<?> tiposServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		Response<?> response = paqueteService.catalogoServicios(request, authentication);
+		Response<?> response = paqueteService.tiposServicios(request, authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
 	}
 
-	@PostMapping("/cat-arti")
-	public CompletableFuture<?> catalogoArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	@PostMapping("/tip-arti")
+	public CompletableFuture<?> tiposArticulos(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
-		Response<?> response = paqueteService.catalogoArticulos(request, authentication);
+		Response<?> response = paqueteService.tiposArticulos(request, authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		
@@ -120,6 +120,15 @@ public class PaquetesController {
 	public CompletableFuture<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		
 		Response<?> response = paqueteService.agregarPaquete(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+		
+	}
+	
+	@PostMapping("/agr-art-serv")
+	public CompletableFuture<?> agregarArtServ(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		Response<?> response = paqueteService.agregarArtServ(request, authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 		

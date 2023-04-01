@@ -28,8 +28,8 @@ public class Paquete {
 	private Integer id;
 	private String nomPaquete;
 	private String desPaquete;
-	private ArrayList<Articulo> articulos;
-	private ArrayList<Servicio> servicios;
+	private ArrayList<Integer> articulos;
+	private ArrayList<Integer> servicios;
 	private Float costo;
 	private Float precio;
 	private Boolean isRegion;
@@ -45,6 +45,8 @@ public class Paquete {
 		this.id = paqueteDto.getId();
 		this.nomPaquete = paqueteDto.getNomPaquete();
 		this.desPaquete = paqueteDto.getDesPaquete();
+		this.articulos = paqueteDto.getArticulos();
+		this.servicios = paqueteDto.getServicios();
 		this.costo = paqueteDto.getCosto();
 		this.precio = paqueteDto.getPrecio();
 		this.isRegion = paqueteDto.getIsRegion();
@@ -84,7 +86,7 @@ public class Paquete {
 		return request;	
 	}
     
-    public DatosRequest catalogoServicios() {
+    public DatosRequest tiposServicios() {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		String query = "SELECT * FROM SVC_TIPO_SERVICIO";
@@ -94,7 +96,7 @@ public class Paquete {
 		return request;
 	}
     
-    public DatosRequest catalogoArticulos() {
+    public DatosRequest tiposArticulos() {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		String query = "SELECT * FROM SVC_TIPO_ARTICULO";
@@ -117,7 +119,7 @@ public class Paquete {
     public DatosRequest listadoArticulos() {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
-		String query = "SELECT ID_ARTICULO AS id, DES_ARTICULO AS nombre FROM SVT_ARTICULO";
+		String query = "SELECT ID_ARTICULO AS id, ID_CATEGORIA_ARTICULO AS idCategoria, DES_ARTICULO AS nombre FROM SVT_ARTICULO";
 		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
 		parametro.put(AppConstantes.QUERY, encoded);
 		request.setDatos(parametro);
@@ -194,21 +196,29 @@ public class Paquete {
 		return request;
 	}
     
-    private DatosRequest insertarArticulos() {
+    public DatosRequest insertarArtServ() {
     	DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		
-		final QueryHelper q = new QueryHelper("");
-		for (Articulo articulo : this.articulos) {
-		   q.agregarParametroValues("INSERT INTO SVT_PAQUETE_ARTICULO ", "");
-		   q.agregarParametroValues("ID_ARTICULO", articulo.getArticulo());
-		   q.agregarParametroValues("ID_PAQUETE", this.id.toString());
-		   q.agregarParametroValues("CVE_ESTATUS", "1");
+		StringBuilder query = new StringBuilder();
+		for (Integer articulo : this.articulos) {
+		   query.append("INSERT INTO SVT_PAQUETE_ARTICULO (ID_ARTICULO, ID_PAQUETE, CVE_ESTATUS) VALUES (");
+		   query.append(articulo + ", " + this.id + ", 1);$$"); 
 		}
-		   
-		String query = q.obtenerQueryInsertar();
-		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+		Integer ultimoServicio = this.servicios.get(this.servicios.size() - 1);
+		for (Integer servicio : this.servicios) {
+			   query.append("INSERT INTO SVT_PAQUETE_SERVICIO (ID_SERVICIO, ID_PAQUETE, CVE_ESTATUS) VALUES (");
+			   if (servicio.equals(ultimoServicio)) { 
+			       query.append(servicio + ", " + this.id + ", 1)");
+			   } else {
+				   query.append(servicio + ", " + this.id + ", 1);$$");
+			   }
+		}
+		
+		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes());
 		parametro.put(AppConstantes.QUERY, encoded);
+		parametro.put("separador", "$$");
+		parametro.put("replace", this.id);
 		request.setDatos(parametro);
 		
 		return request;

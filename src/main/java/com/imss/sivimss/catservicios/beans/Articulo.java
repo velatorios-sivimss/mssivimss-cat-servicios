@@ -14,7 +14,7 @@ import lombok.Setter;
 public class Articulo {
 
 	private Integer id;
-	private String articulo;
+	private String nombre;
 	private Integer idTipo;
 	private String tipo;
 	private Float precio;

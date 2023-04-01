@@ -14,9 +14,9 @@ public interface PaqueteService {
 	
 	Response<?> buscarPaquetes(DatosRequest request, Authentication authentication) throws IOException;
 	
-	Response<?> catalogoServicios(DatosRequest request, Authentication authentication) throws IOException;
+	Response<?> tiposServicios(DatosRequest request, Authentication authentication) throws IOException;
 	
-	Response<?> catalogoArticulos(DatosRequest request, Authentication authentication) throws IOException;
+	Response<?> tiposArticulos(DatosRequest request, Authentication authentication) throws IOException;
 	
     Response<?> listadoServicios(DatosRequest request, Authentication authentication) throws IOException;
 	
@@ -29,6 +29,8 @@ public interface PaqueteService {
 	Response<?> detallePaqArticulos(DatosRequest request, Authentication authentication) throws IOException;
 	
 	Response<?> agregarPaquete(DatosRequest request, Authentication authentication) throws IOException;
+	
+	Response<?> agregarArtServ(DatosRequest request, Authentication authentication) throws IOException;
 
 	Response<?> actualizarPaquete(DatosRequest request, Authentication authentication) throws IOException;
 	

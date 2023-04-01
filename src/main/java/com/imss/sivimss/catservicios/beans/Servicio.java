@@ -14,7 +14,7 @@ import lombok.Setter;
 public class Servicio {
 
 	private Integer id;
-	private String servicio;
+	private String nombre;
 	private Integer idTipo;
 	private String tipo;
 	private Float precio;
