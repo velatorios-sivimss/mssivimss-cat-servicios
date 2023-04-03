@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.imss.sivimss.catservicios.beans.BusquedaDto;
 import com.imss.sivimss.catservicios.beans.Paquete;
+import com.imss.sivimss.catservicios.beans.Articulo;
+import com.imss.sivimss.catservicios.beans.Servicio;
 import com.imss.sivimss.catservicios.exception.BadRequestException;
 import com.imss.sivimss.catservicios.service.PaqueteService;
 import com.imss.sivimss.catservicios.util.DatosRequest;
@@ -26,6 +28,7 @@ import com.imss.sivimss.catservicios.util.AppConstantes;
 import com.imss.sivimss.catservicios.util.ProviderServiceRestTemplate;
 
 import com.imss.sivimss.catservicios.model.response.TipoServicioResponse;
+import com.imss.sivimss.catservicios.model.request.CatalogoRequest;
 import com.imss.sivimss.catservicios.model.request.PaqueteDto;
 import com.imss.sivimss.catservicios.model.response.TipoArticuloResponse;
 
@@ -79,9 +82,9 @@ public class PaqueteServiceImpl implements PaqueteService {
 
 	@Override
 	public Response<?> tiposServicios(DatosRequest request, Authentication authentication) throws IOException {
-		Paquete paquete = new Paquete();
+		Servicio servicio = new Servicio();
 		List<TipoServicioResponse> servicioResponse;
-		Response<?> response = providerRestTemplate.consumirServicio(paquete.tiposServicios().getDatos(), urlGenericoConsulta, 
+		Response<?> response = providerRestTemplate.consumirServicio(servicio.tiposServicios().getDatos(), urlGenericoConsulta, 
 				authentication);
 		if (response.getCodigo() == 200) {
 			servicioResponse = Arrays.asList(modelMapper.map(response.getDatos(), TipoServicioResponse[].class));
@@ -92,9 +95,9 @@ public class PaqueteServiceImpl implements PaqueteService {
 
 	@Override
 	public Response<?> tiposArticulos(DatosRequest request, Authentication authentication) throws IOException {
-		Paquete paquete = new Paquete();
+		Articulo articulo = new Articulo();
 		List<TipoArticuloResponse> articuloResponse;
-		Response<?> response = providerRestTemplate.consumirServicio(paquete.tiposArticulos().getDatos(), urlGenericoConsulta, 
+		Response<?> response = providerRestTemplate.consumirServicio(articulo.tiposArticulos().getDatos(), urlGenericoConsulta, 
 				authentication);
 		if (response.getCodigo() == 200) {
 			articuloResponse = Arrays.asList(modelMapper.map(response.getDatos(), TipoArticuloResponse[].class));
@@ -105,8 +108,13 @@ public class PaqueteServiceImpl implements PaqueteService {
 
 	@Override
 	public Response<?> listadoServicios(DatosRequest request, Authentication authentication) throws IOException {
-		Paquete paquete = new Paquete();
-		Response<?> response = providerRestTemplate.consumirServicio(paquete.listadoServicios().getDatos(), urlGenericoConsulta, 
+		Gson gson = new Gson();
+
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		CatalogoRequest catalogoRequest = gson.fromJson(datosJson,CatalogoRequest.class);
+		Servicio servicio = new Servicio(catalogoRequest.getIdTipo());
+		
+		Response<?> response = providerRestTemplate.consumirServicio(servicio.listadoServicios().getDatos(), urlGenericoConsulta, 
 				authentication);
 	
 		return response;
@@ -114,8 +122,13 @@ public class PaqueteServiceImpl implements PaqueteService {
 
 	@Override
 	public Response<?> listadoArticulos(DatosRequest request, Authentication authentication) throws IOException {
-		Paquete paquete = new Paquete();
-		Response<?> response = providerRestTemplate.consumirServicio(paquete.listadoArticulos().getDatos(), urlGenericoConsulta, 
+		Gson gson = new Gson();
+
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		CatalogoRequest catalogoRequest = gson.fromJson(datosJson,CatalogoRequest.class);
+		Articulo articulo = new Articulo(catalogoRequest.getIdTipo());
+		
+		Response<?> response = providerRestTemplate.consumirServicio(articulo.listadoArticulos().getDatos(), urlGenericoConsulta, 
 				authentication);
 
 		return response;

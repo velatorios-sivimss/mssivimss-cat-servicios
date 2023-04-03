@@ -85,46 +85,6 @@ public class Paquete {
 
 		return request;	
 	}
-    
-    public DatosRequest tiposServicios() {
-		DatosRequest request = new DatosRequest();
-		Map<String, Object> parametro = new HashMap<>();
-		String query = "SELECT * FROM SVC_TIPO_SERVICIO";
-		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
-		parametro.put(AppConstantes.QUERY, encoded);
-		request.setDatos(parametro);
-		return request;
-	}
-    
-    public DatosRequest tiposArticulos() {
-		DatosRequest request = new DatosRequest();
-		Map<String, Object> parametro = new HashMap<>();
-		String query = "SELECT * FROM SVC_TIPO_ARTICULO";
-		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
-		parametro.put(AppConstantes.QUERY, encoded);
-		request.setDatos(parametro);
-		return request;
-	}
-    
-    public DatosRequest listadoServicios() {
-		DatosRequest request = new DatosRequest();
-		Map<String, Object> parametro = new HashMap<>();
-		String query = "SELECT ID_SERVICIO AS id, NOM_SERVICIO AS nombre FROM SVT_SERVICIO";
-		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
-		parametro.put(AppConstantes.QUERY, encoded);
-		request.setDatos(parametro);
-		return request;
-	}
-    
-    public DatosRequest listadoArticulos() {
-		DatosRequest request = new DatosRequest();
-		Map<String, Object> parametro = new HashMap<>();
-		String query = "SELECT ID_ARTICULO AS id, ID_CATEGORIA_ARTICULO AS idCategoria, DES_ARTICULO AS nombre FROM SVT_ARTICULO";
-		String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
-		parametro.put(AppConstantes.QUERY, encoded);
-		request.setDatos(parametro);
-		return request;
-	}
 
     public DatosRequest detallePaquete(DatosRequest request) {
 
@@ -149,6 +109,7 @@ public class Paquete {
 		query.append("LEFT JOIN svt_servicio sv ON ps.ID_SERVICIO = sv.ID_SERVICIO \n");
 		query.append("LEFT JOIN svc_tipo_servicio ts ON sv.ID_TIPO_SERVICIO = ts.ID_TIPO_SERVICIO \n");
 		query.append("WHERE ps.ID_PAQUETE = " + idPaquete);
+		query.append(" AND ps.CVE_ESTATUS = 1" );
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes());
 		request.getDatos().remove("id");
@@ -165,6 +126,7 @@ public class Paquete {
 		query.append("LEFT JOIN svt_articulo ar ON pa.ID_ARTICULO = ar.ID_ARTICULO \n");
 		query.append("LEFT JOIN svc_tipo_articulo ta ON ar.ID_TIPO_ARTICULO = ta.ID_TIPO_ARTICULO \n");
 		query.append("WHERE pa.ID_PAQUETE = " + idPaquete);
+		query.append(" AND pa.CVE_ESTATUS = 1" );
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes());
 		request.getDatos().remove("id");
@@ -200,7 +162,8 @@ public class Paquete {
     	DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		
-		StringBuilder query = new StringBuilder();
+		StringBuilder query = new StringBuilder("UPDATE SVT_PAQUETE_ARTICULO SET CVE_ESTATUS = 0 WHERE ID_PAQUETE = " + this.id +";$$");
+		query.append("UPDATE SVT_PAQUETE_SERVICIO SET CVE_ESTATUS = 0 WHERE ID_PAQUETE = " + this.id +";$$");
 		for (Integer articulo : this.articulos) {
 		   query.append("INSERT INTO SVT_PAQUETE_ARTICULO (ID_ARTICULO, ID_PAQUETE, CVE_ESTATUS) VALUES (");
 		   query.append(articulo + ", " + this.id + ", 1);$$"); 
@@ -218,7 +181,6 @@ public class Paquete {
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes());
 		parametro.put(AppConstantes.QUERY, encoded);
 		parametro.put("separador", "$$");
-		parametro.put("replace", this.id);
 		request.setDatos(parametro);
 		
 		return request;

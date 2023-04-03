@@ -37,7 +37,7 @@ endpoints:
    generico-consulta: http://localhost:8090/mssivimss-mod-catalogos/generico/consulta
    generico-crear: http://localhost:8090/mssivimss-mod-catalogos/generico/crear
    generico-actualizar: http://localhost:8090/mssivimss-mod-catalogos/generico/actualizar
-   generico-multiple: http://localhost:8090/mssivimss-mod-catalogos/generico/crearMultiple
+   generico-multiple: http://localhost:8090/mssivimss-mod-catalogos/generico/insertarMultiple
    ms-reportes: http://localhost:8088/mssivimss-reportes-jpr
 
 jwt:
