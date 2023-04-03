@@ -89,6 +89,15 @@ public class PaquetesController {
 		
 	}
 	
+	@PostMapping("/prod-ser")
+	public CompletableFuture<?> productosServicios(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+		
+		Response<?> response = paqueteService.productosServicios(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+		
+	}
+	
 	@PostMapping("/detalle")
 	public CompletableFuture<?> detalle(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 		

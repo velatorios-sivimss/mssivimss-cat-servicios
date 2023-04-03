@@ -22,6 +22,8 @@ public interface PaqueteService {
 	
 	Response<?> listadoArticulos(DatosRequest request, Authentication authentication) throws IOException;
 	
+	Response<?> productosServicios(DatosRequest request, Authentication authentication) throws IOException;
+	
 	Response<?> detallePaquete(DatosRequest request, Authentication authentication) throws IOException;
 	
 	Response<?> detallePaqServicios(DatosRequest request, Authentication authentication) throws IOException;

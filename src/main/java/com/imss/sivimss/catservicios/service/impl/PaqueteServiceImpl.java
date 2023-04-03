@@ -135,6 +135,16 @@ public class PaqueteServiceImpl implements PaqueteService {
 	}
 	
 	@Override
+	public Response<?> productosServicios(DatosRequest request, Authentication authentication) throws IOException {
+		Servicio servicio = new Servicio();
+		
+		Response<?> response = providerRestTemplate.consumirServicio(servicio.productosServicios().getDatos(), urlGenericoConsulta, 
+				authentication);
+
+		return response;
+	}
+	
+	@Override
 	public Response<?> detallePaquete(DatosRequest request, Authentication authentication) throws IOException {
 		Paquete paquete = new Paquete();
 		

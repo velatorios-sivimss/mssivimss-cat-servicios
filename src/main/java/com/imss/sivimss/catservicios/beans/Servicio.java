@@ -51,5 +51,16 @@ public class Servicio {
 			request.setDatos(parametro);
 			return request;
 	}
+	 
+	 public DatosRequest productosServicios() {
+		 DatosRequest request = new DatosRequest();
+			Map<String, Object> parametro = new HashMap<>();
+			String query = "SELECT ID_PRODUCTOS_SERVICIOS AS idProdServ, CVE_PRODUCTOS_SERVICIOS AS cveProdServ, DES_PRODUCTOS_SERVICIOS AS desProdServ, DES_UNIDAD_SAT AS unidadSat " +
+					 "FROM SVC_CLAVES_PRODUCTOS_SERVICIOS";
+			String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+			parametro.put(AppConstantes.QUERY, encoded);
+			request.setDatos(parametro);
+			return request;
+	 }
 	
 }
