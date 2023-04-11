@@ -59,8 +59,8 @@ public class Paquete {
 	
 	public DatosRequest obtenerPaquetes(DatosRequest request) {
 		
-		StringBuilder query = new StringBuilder("SELECT p.ID_PAQUETE, p.NOM_PAQUETE, p.MON_COSTO_REFERENCIA, p.MON_PRECIO, " +
-			 " p.IDN_REGION, c.DES_UNIDAD_SAT, p.CVE_ESTATUS FROM SVT_PAQUETE p JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS c "  +
+		StringBuilder query = new StringBuilder("SELECT p.ID_PAQUETE AS id, p.NOM_PAQUETE AS nomPaquete, p.MON_COSTO_REFERENCIA AS costo, p.MON_PRECIO AS precio, " +
+			 " p.IDN_REGION AS isRegion, c.DES_UNIDAD_SAT AS claveSat, p.CVE_ESTATUS AS estatus FROM SVT_PAQUETE p JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS c "  +
 			 " ON p.ID_PRODUCTOS_SERVICIOS = c.ID_PRODUCTOS_SERVICIOS ");
         query.append(" ORDER BY p.ID_PAQUETE DESC");
         
@@ -72,8 +72,8 @@ public class Paquete {
 
     public DatosRequest buscarPaquetes(DatosRequest request, BusquedaDto busqueda) {
 		
-		StringBuilder query = new StringBuilder("SELECT p.ID_PAQUETE, p.NOM_PAQUETE, p.MON_COSTO_REFERENCIA, p.MON_PRECIO, " +
-			 " p.IDN_REGION, c.DES_UNIDAD_SAT, p.CVE_ESTATUS FROM SVT_PAQUETE p LEFT JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS c "  +
+    	StringBuilder query = new StringBuilder("SELECT p.ID_PAQUETE AS id, p.NOM_PAQUETE AS nomPaquete, p.MON_COSTO_REFERENCIA AS costo, p.MON_PRECIO AS precio, " +
+   			 " p.IDN_REGION AS isRegion, c.DES_UNIDAD_SAT AS claveSat, p.CVE_ESTATUS AS estatus FROM SVT_PAQUETE p JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS c "  +
 			 " ON p.ID_PRODUCTOS_SERVICIOS = c.ID_PRODUCTOS_SERVICIOS ");
 		if (busqueda.getNombre() != null) {
 			query.append(" WHERE p.NOM_PAQUETE LIKE '%" + busqueda.getNombre() + "%'");
