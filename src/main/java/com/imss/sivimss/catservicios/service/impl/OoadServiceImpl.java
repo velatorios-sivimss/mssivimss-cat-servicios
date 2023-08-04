@@ -21,10 +21,10 @@ import com.imss.sivimss.catservicios.util.RestTemplateUtil;
 @Service
 public class OoadServiceImpl implements OoadService {
 
-	@Value("${endpoints.consulta-ooads}")
+	@Value("${endpoints.ms-mod-catalogos}")
 	private String urlConsultaOoad;
 	
-	@Value("${endpoints.paginado-unidad}")
+	@Value("${endpoints.ms-mod-catalogos}")
 	private String urlPaginadoUnidad;
 	
 	@Autowired

@@ -1,8 +1,10 @@
 server:
   port: 8080
   servlet:
-    contextPath: /mssivimss-cat-servicios
+    contextPath: /${spring.application.name}/v1
 spring:
+  application:
+    name: mssivimss-cat-servicios
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
@@ -30,12 +32,19 @@ logos:
   msit_logo_sistema: /sintrans_data/LOGOS/logoSistema.png
 
 endpoints:
-   consulta-ooads: http://localhost:8090/dominio/
-   paginado-unidad: http://localhost:8090/dominio/ooad/paginacion
-   dominio-consulta: http://localhost:8094/mssivimss-mod-catalogos
-   ms-reportes: http://localhost:8088/mssivimss-reportes-jpr
-
+    ms-mod-catalogos: http://localhost:8090/mssivimss-mod-catalogos/v1/generico
+    renapo: http://localhost:8088/mssivimss-reportes-jasp/v1/generales/generar-reporte
+    rutas:
+      dominio-consulta: ${endpoints.ms-mod-catalogos}/consulta
+      dominio-consulta-paginado: ${endpoints.ms-mod-catalogos}/paginado
+      dominio-crear: ${endpoints.ms-mod-catalogos}/crear
+      dominio-crear-multiple: ${endpoints.ms-mod-catalogos}/crearMultiple
+      dominio-actualizar: ${endpoints.ms-mod-catalogos}/actualizar
+      dominio-insertar-multiple: ${endpoints.ms-mod-catalogos}/insertarMultiple
 jwt:
   secretkey-flujo: funcionamuybien
   secretkey-dominios: funcionamuybiendominio
   expiration-milliseconds: 360
+  
+formato_fecha: '%d/%m/%Y'
+ruta-log: 'C:/logs/'

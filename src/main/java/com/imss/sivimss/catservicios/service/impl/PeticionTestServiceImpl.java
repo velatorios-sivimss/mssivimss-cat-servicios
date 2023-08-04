@@ -25,13 +25,13 @@ import com.imss.sivimss.catservicios.util.Response;
 @Service
 public class PeticionTestServiceImpl implements PeticionTestService {
 
-	@Value("${endpoints.consulta-ooads}")
+	@Value("${endpoints.ms-mod-catalogos}")
 	private String urlConsultaOoad;
 
-	@Value("${endpoints.paginado-unidad}")
+	@Value("${endpoints.ms-mod-catalogos}")
 	private String urlPaginadoUnidad;
 
-	@Value("${endpoints.dominio-consulta}")
+	@Value("${endpoints.ms-mod-catalogos}")
 	private String urlDominioConsulta;
 
 	@Autowired

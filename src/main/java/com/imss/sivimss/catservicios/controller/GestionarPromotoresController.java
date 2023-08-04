@@ -18,7 +18,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/promotor")
+@RequestMapping("/")
 public class GestionarPromotoresController {
 	
     @Autowired
@@ -51,7 +51,7 @@ public class GestionarPromotoresController {
       
 	}
 	
-	@PostMapping("/catalogo")
+	@PostMapping("buscar/promotor")
 	public Response<?> catalogoPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	
 		return gestionarPromotoresService.mostrarCatalogo(request,authentication);
