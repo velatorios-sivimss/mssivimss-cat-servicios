@@ -95,7 +95,9 @@ public class GestionarPromotores {
 				"SV.DES_VELATORIO AS velatorio",
 				"COUNT(DIA.FEC_PROMOTOR_DIAS_DESCANSO) AS diasDescanso",
 				"GROUP_CONCAT(DATE_FORMAT(DIA.FEC_PROMOTOR_DIAS_DESCANSO, '"+fecFormat+"')) AS fecDescansos",
-				"IF(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()) < 12, TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), TIMESTAMPDIFF(YEAR, PR.FEC_INGRESO, CURRENT_TIMESTAMP()) )AS antiguedad",
+				"IF(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()) < 12, "
+				+ "CONCAT(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' meses'), "
+				+ "CONCAT(TIMESTAMPDIFF(YEAR, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' año (s)') )AS antiguedad",
 				"SP.DES_CORREO AS correo",
 				"PR.DES_PUESTO AS puesto",
 				"PR.DES_CATEGORIA AS categoria",
@@ -104,6 +106,7 @@ public class GestionarPromotores {
 		.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
 		.join("SVC_VELATORIO SV ", "PR.ID_VELATORIO = SV.ID_VELATORIO")
 		.join("SVT_PROMOTOR_DIAS_DESCANSO DIA", "PR.ID_PROMOTOR = DIA.ID_PROMOTOR");
+		queryUtil.where("DIA.IND_ACTIVO = 1");
 		if(filtros.getIdDelegacion()!=null) {
 			queryUtil.where("SV.ID_DELEGACION = "+ filtros.getIdDelegacion() + "");
 		}
@@ -121,6 +124,62 @@ public class GestionarPromotores {
 	    parametros.put(AppConstantes.QUERY, encoded);
 	    parametros.put("pagina",filtros.getPagina());
         parametros.put("tamanio",filtros.getTamanio());
+        request.getDatos().remove(AppConstantes.DATOS);
+	    request.setDatos(parametros);
+		return request;
+	}
+	
+	
+	public DatosRequest detalle(DatosRequest request, String palabra, String fecFormat) {
+		Map<String, Object> parametros = new HashMap<>();
+		SelectQueryUtil queryUtil = new SelectQueryUtil();
+		queryUtil.select("PR.ID_PROMOTOR AS idPromotor",
+				"PR.NUM_EMPLEADO AS numEmpleado",
+				"SV.ID_VELATORIO AS idVelatorio",
+				"SP.CVE_CURP AS curp",
+				"SP.NOM_PERSONA AS nombre",
+				"SP.NOM_PRIMER_APELLIDO AS primerApellido",
+				"SP.NOM_SEGUNDO_APELLIDO AS segundoApellido",
+				"DATE_FORMAT(SP.FEC_NAC, '"+fecFormat+"') AS fecNac",
+				"DATE_FORMAT(PR.FEC_INGRESO, '"+fecFormat+"') AS fecIngreso",
+				"DATE_FORMAT(PR.FEC_BAJA, '"+fecFormat+"') AS fecBaja",
+				"PR.MON_SUELDOBASE AS sueldoBase",
+				"SV.DES_VELATORIO AS velatorio",
+				"IF(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()) < 12, "
+				+ "CONCAT(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' meses'), "
+				+ "CONCAT(TIMESTAMPDIFF(YEAR, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' año (s)') )AS antiguedad",
+				"SP.DES_CORREO AS correo",
+				"PR.DES_PUESTO AS puesto",
+				"PR.DES_CATEGORIA AS categoria",
+				"PR.IND_ACTIVO AS estatus")
+		.from("SVT_PROMOTOR PR")
+		.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
+		.join("SVC_VELATORIO SV ", "PR.ID_VELATORIO = SV.ID_VELATORIO");
+		queryUtil.where("PR.ID_PROMOTOR = :id")
+		.setParameter("id", Integer.parseInt(palabra));
+		String query = obtieneQuery(queryUtil);
+		log.info("promotores "+query);
+		String encoded = encodedQuery(query);
+	    parametros.put(AppConstantes.QUERY, encoded);
+        request.getDatos().remove(AppConstantes.DATOS);
+	    request.setDatos(parametros);
+		return request;
+	}
+	
+	
+	public DatosRequest buscarDiasDescanso(DatosRequest request, String palabra, String fecFormat) {
+		Map<String, Object> parametros = new HashMap<>();
+		SelectQueryUtil queryUtil = new SelectQueryUtil();
+		queryUtil.select("DIA.ID_PROMOTOR_DIAS_DESCANSO AS id",
+				"DATE_FORMAT(DIA.FEC_PROMOTOR_DIAS_DESCANSO, '"+fecFormat+"') AS fecDescanso")
+		.from("SVT_PROMOTOR PR")
+		.leftJoin("SVT_PROMOTOR_DIAS_DESCANSO DIA", "PR.ID_PROMOTOR = DIA.ID_PROMOTOR");
+		queryUtil.where("PR.ID_PROMOTOR = :id").and("DIA.IND_ACTIVO=1")
+		.setParameter("id", Integer.parseInt(palabra));
+		String query = obtieneQuery(queryUtil);
+		log.info("dias de descanso: "+query);
+		String encoded = encodedQuery(query);
+	    parametros.put(AppConstantes.QUERY, encoded);
         request.getDatos().remove(AppConstantes.DATOS);
 	    request.setDatos(parametros);
 		return request;
@@ -258,48 +317,6 @@ public class GestionarPromotores {
 			parametro.put(AppConstantes.QUERY, encoded);
 			request.setDatos(parametro);
 			return request;	
-	}
-
-
-
-
-
-	public DatosRequest filtrosBusqueda(DatosRequest request, BuscarPromotoresRequest buscar) {
-		  StringBuilder queries = new StringBuilder();
-		  String query ="SELECT SP.ID_PROMOTOR AS idPromotor, SP.NUM_EMPLEDO AS numEmpleado, SP.DES_CURP AS curp, "
-					+ "SP.NOM_PROMOTOR AS nomPromotor, SP.NOM_PAPELLIDO AS apellidoP, SP.NOM_SAPELLIDO AS apellidoM, "
-					+ "DATE_FORMAT(SP.FEC_NACIMIENTO, \"%d/%m/%Y\") AS fecNacimiento, "
-					+ "DATE_FORMAT(SP.FEC_INGRESO, \"%d/%m/%Y\") AS fecIngreso, "
-					+ "TIMESTAMPDIFF(MONTH, SP.FEC_INGRESO, CURRENT_TIMESTAMP()) AS antiguedad, "
-					+ "DATE_FORMAT(SP.FEC_BAJA, \"%d/%m/%Y\") AS fecBaja, "
-					+ "SP.MON_SUELDOBASE AS sueldoBase, SP.ID_VELATORIO AS idVelatorio, SV.NOM_VELATORIO AS velatorio, SP.DES_CORREO AS correo, "
-					+ " SP.DES_PUESTO AS puesto, SP.DES_CATEGORIA AS categoria, SP.IND_ESTATUS AS estatus, SP.ID_DELEGACION AS idDelegacion, "
-					+ " SD.DES_DELEGACION AS delegacion, "
-					+ "DATE_FORMAT(SPDD.FEC_PROMOTOR_DIAS_DESCANSO, \"%d/%m/%Y\") AS fecDescansos "
-			+ "FROM SVT_PROMOTOR SP "
-			+ "JOIN SVT_PROMOTOR_DIAS_DESCANSO SPDD ON SPDD.ID_PROMOTOR = SP.ID_PROMOTOR "
-			+ "JOIN SVC_VELATORIO SV ON SV.ID_VELATORIO = SP.ID_VELATORIO "
-			+ "JOIN SVC_DELEGACION SD ON SD.ID_DELEGACION = SP.ID_DELEGACION WHERE SPDD.IND_ESTATUS= 1 ";
-		queries.append(query);
-		if(buscar.getDelegacion()!=null && buscar.getVelatorio()==null && buscar.getPromotor()==null) {
-			queries.append(" AND SD.DES_DELEGACION LIKE '%"+ buscar.getDelegacion() + "%'");
-		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()!=null && buscar.getPromotor()==null){
-			queries.append(" AND SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%'");	
-		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()==null && buscar.getPromotor()!=null){
-			queries.append(" AND SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
-		}else if(buscar.getDelegacion()!=null && buscar.getVelatorio()!=null && buscar.getPromotor()==null){
-			queries.append("AND SD.DES_DELEGACION LIKE '%" + buscar.getDelegacion() + "%' AND SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%' ");	
-		}else if(buscar.getDelegacion()!=null && buscar.getVelatorio()==null && buscar.getPromotor()!=null){
-			queries.append("AND SD.DES_DELEGACION LIKE '%"+buscar.getDelegacion()+ "%'AND SP.NOM_PROMOTOR LIKE'%" + buscar.getPromotor() + "%'");	
-		}else if(buscar.getDelegacion()==null && buscar.getVelatorio()!=null && buscar.getPromotor()!=null){
-			queries.append(" AND SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%' AND SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
-		}else if(buscar.getDelegacion()!=null && buscar.getVelatorio()!=null && buscar.getPromotor()!=null) {
-			queries.append(" AND SD.DES_DELEGACION LIKE '%" + buscar.getDelegacion() + "%' AND SV.NOM_VELATORIO LIKE '%" + buscar.getVelatorio() + "%' AND SP.NOM_PROMOTOR LIKE '%" + buscar.getPromotor() + "%'");	
-		}
-		log.info(queries.toString());
-		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(queries.toString().getBytes()));
-		request.getDatos().remove(""+AppConstantes.DATOS+"");
-		return request;
 	}
 
 

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.imss.sivimss.catservicios.beans.GestionarPromotores;
 import com.imss.sivimss.catservicios.exception.BadRequestException;
+import com.imss.sivimss.catservicios.model.DiasDescansoModel;
 import com.imss.sivimss.catservicios.model.request.BuscarPromotoresRequest;
 import com.imss.sivimss.catservicios.model.request.FiltrosPromotorRequest;
 import com.imss.sivimss.catservicios.model.request.PromotoresRequest;
@@ -34,6 +35,7 @@ import com.imss.sivimss.catservicios.util.AppConstantes;
 import com.imss.sivimss.catservicios.util.ConvertirGenerico;
 import com.imss.sivimss.catservicios.util.DatosRequest;
 import com.imss.sivimss.catservicios.util.LogUtil;
+import com.imss.sivimss.catservicios.util.MensajeResponseUtil;
 import com.imss.sivimss.catservicios.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.catservicios.util.Response;
 
@@ -76,8 +78,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	@Autowired
 	private ModelMapper modelMapper;
 	
-//	private static final Logger log = LoggerFactory.getLogger(GestionarPromotoresImpl.class);
-	
 	@Override
 	public Response<?> mostrarCatalogo(DatosRequest request, Authentication authentication) throws IOException {
 		String datosJson = String.valueOf(request.getDatos().get("datos"));
@@ -90,6 +90,29 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	        Response<?> response = providerRestTemplate.consumirServicio(promotores.catalogoPromotores(request, filtros, fecFormat).getDatos(), urlPaginado,
 				authentication);
 	        logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"CONSULTA CONTRATANTES OK", CONSULTA, authentication, usuario);
+		return response;
+	}
+	
+	@Override
+	public Response<?> verDetalle(DatosRequest request, Authentication authentication) throws IOException {
+		String palabra = request.getDatos().get("palabra").toString();
+		List<PromotorResponse> detallePromotorResponse;
+		List<DiasDescansoModel> promotorDescansos;
+		PromotorResponse promoResponse;
+		UsuarioDto usuario = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		Response<?> response= MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(promotores.detalle(request, palabra, fecFormat).getDatos(), urlConsulta,
+				authentication), "EXITO");
+		if(response.getCodigo()==200) {
+			detallePromotorResponse = Arrays.asList(modelMapper.map(response.getDatos(), PromotorResponse[].class));
+			 promotorDescansos = Arrays.asList(modelMapper.map(providerRestTemplate.consumirServicio(promotores.buscarDiasDescanso(request, palabra, fecFormat).getDatos(), urlConsulta, authentication).getDatos(), DiasDescansoModel[].class));
+			promoResponse = detallePromotorResponse.get(0);
+			promoResponse.setPromotorDiasDescanso(promotorDescansos);
+			response.setCodigo(200);
+            response.setError(false);
+            response.setMensaje("Exito");
+			 response.setDatos(ConvertirGenerico.convertInstanceOfObject(promoResponse));
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DETALLE PROMOTOR OK", CONSULTA, authentication, usuario);
+		}
 		return response;
 	}
 	
@@ -177,14 +200,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			return !rst.toString().equals("[]");	
 			}
 		 throw new BadRequestException(HttpStatus.BAD_REQUEST, "ERROR AL REGISTRAR EL PROMOTOR ");
-	}
-
-	@Override
-	public Response<?> busquedas(DatosRequest request, Authentication authentication) throws IOException {
-		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		BuscarPromotoresRequest buscar = gson.fromJson(datosJson, BuscarPromotoresRequest.class);
-		return providerRestTemplate.consumirServicio(promotores.filtrosBusqueda(request, buscar).getDatos(), urlConsulta,
-				authentication);
 	}
 
 	@Override

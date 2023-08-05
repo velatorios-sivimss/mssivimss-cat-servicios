@@ -23,6 +23,20 @@ public class GestionarPromotoresController {
 	
     @Autowired
 	private GestionarPromotoresService gestionarPromotoresService;
+    
+    @PostMapping("buscar/promotor")
+	public Response<?> catalogoPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.mostrarCatalogo(request,authentication);
+	}
+    
+    @PostMapping("detalle/promotor")
+	public Response<?> detallePromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.verDetalle(request,authentication);
+      
+	}
+
 	
 	@PostMapping("/agregar")
 	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException{
@@ -51,18 +65,4 @@ public class GestionarPromotoresController {
       
 	}
 	
-	@PostMapping("buscar/promotor")
-	public Response<?> catalogoPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
-	
-		return gestionarPromotoresService.mostrarCatalogo(request,authentication);
-      
-	}
-	
-	@PostMapping("/filtros")
-	public Response<?> filtrosBusqueda(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
-	
-		return gestionarPromotoresService.busquedas(request,authentication);
-      
-	}
-
 }
