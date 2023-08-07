@@ -16,23 +16,17 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonIgnoreType(value = true)
-public class PromotoresRequest {
+public class PromotorRequest {
 	
 	private Integer idPromotor;
 	private String numEmpleado;
-	private String desCurp;
-	private String nomPromotor;
-	private String aPaterno;
-	private String aMaterno;
-	private String fecNacimiento;
 	private String fecIngreso;
-	private Integer monSueldoBase;
+	private Integer sueldoBase;
 	private Integer idVelatorio;
-	private String desCorreo;
-	private String desPuesto;
-	private String desCategoria;
-	private Integer indEstatus;
-	private Integer idDelegacion;
+	private String puesto;
+	private String categoria;
+	private Integer estatus;
 	private List<String> fecPromotorDiasDescanso;
 	private Integer indEstatusDescanso;
+
 }
