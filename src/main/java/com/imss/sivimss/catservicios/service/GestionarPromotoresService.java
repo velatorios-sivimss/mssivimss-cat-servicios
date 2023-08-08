@@ -14,11 +14,11 @@ public interface GestionarPromotoresService {
 
 	Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)throws IOException, ParseException;
 
-	//Response<?> cambiarEstatusPromotor(DatosRequest request, Authentication authentication) throws IOException;
-
 	Response<?> mostrarCatalogo(DatosRequest request, Authentication authentication)throws IOException;
 
 	Response<?> verDetalle(DatosRequest request, Authentication authentication) throws IOException;
+	
+	Response<?> cambiarEstatus(DatosRequest request, Authentication authentication) throws IOException;
 
 	//Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException, ParseException;
 

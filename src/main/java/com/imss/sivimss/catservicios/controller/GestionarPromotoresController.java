@@ -18,46 +18,47 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/")
+@RequestMapping("/promotor")
 public class GestionarPromotoresController {
 	
     @Autowired
 	private GestionarPromotoresService gestionarPromotoresService;
     
-    @PostMapping("buscar/promotor")
+    @PostMapping("/buscar")
 	public Response<?> catalogoPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	
 		return gestionarPromotoresService.mostrarCatalogo(request,authentication);
 	}
     
-    @PostMapping("detalle/promotor")
+    @PostMapping("/detalle")
 	public Response<?> detallePromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	
 		return gestionarPromotoresService.verDetalle(request,authentication);
       
 	}
 	
-	@PostMapping("insertar/promotor")
-	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException{
+	@PostMapping("/agregar")
+	public Response<?> insertarPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException{
 	
 		return gestionarPromotoresService.agregarPromotor(request,authentication);
 	}
 	
-	@PostMapping("modificar/promotor")
-	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
+	@PostMapping("/modificar")
+	public Response<?> modificarPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
 		return gestionarPromotoresService.actualizarPromotor(request,authentication);
       
 	}
 
-	/*
-	@PostMapping("/estatus")
-	public Response<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	
-		return gestionarPromotoresService.cambiarEstatusPromotor(request,authentication);
+	@PostMapping("/cambiar-estatus")
+	public Response<?> cambiarEstatusPromotor(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
+	
+		return gestionarPromotoresService.cambiarEstatus(request,authentication);
       
 	}
 	
+	/*
 	@PostMapping("/estatus-descansos")
 	public Response<?> cambiarEstatusFechasDescansos(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	

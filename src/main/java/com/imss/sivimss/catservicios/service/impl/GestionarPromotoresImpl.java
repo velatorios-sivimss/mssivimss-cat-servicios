@@ -26,6 +26,7 @@ import com.imss.sivimss.catservicios.exception.BadRequestException;
 import com.imss.sivimss.catservicios.model.DiasDescansoModel;
 import com.imss.sivimss.catservicios.model.request.FiltrosPromotorRequest;
 import com.imss.sivimss.catservicios.model.request.PersonaRequest;
+import com.imss.sivimss.catservicios.model.request.PromotorRequest;
 import com.imss.sivimss.catservicios.model.request.UsuarioDto;
 import com.imss.sivimss.catservicios.model.response.PromotorResponse;
 import com.imss.sivimss.catservicios.service.GestionarPromotoresService;
@@ -138,24 +139,24 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				if(personaRequest.getPromotor().getFecPromotorDiasDescanso()==null) {
 					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrearMultiple,
 							authentication);
-					logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
+					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
 				}
 				else {
 					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrear,
 							authentication);
-					logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DATOS GENERALES CORRECTAMENTE", ALTA, authentication, usuario);
+					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DATOS GENERALES CORRECTAMENTE", ALTA, authentication, usuario);
 				if(response.getCodigo()==200) {
 					Integer idPersona =Integer.parseInt(response.getDatos().toString());
 					providerRestTemplate.consumirServicio(promotores.insertarPromotor(idPersona, personaRequest.getPromotor()).getDatos(), urlCrearMultiple,
 							authentication);
-					logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
+					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
 				}
 				}
 			}catch (Exception e) {
 				String consulta = promotores.insertarPersona(personaRequest.getPromotor()).getDatos().get("query").toString();
 				String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
 				log.error("Error al ejecutar la query" +encoded);
-				logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
+				logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
 				throw new IOException("5", e.getCause()) ;
 			}
 			return response;	      
@@ -200,22 +201,27 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				
 			}
 
-	/*
+	
 	@Override
-	public Response<?> cambiarEstatusPromotor(DatosRequest request, Authentication authentication) throws IOException {
-		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		PersonaRequest promotoresRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PersonaRequest.class);
+	public Response<?> cambiarEstatus(DatosRequest request, Authentication authentication) throws IOException {
+		UsuarioDto usuario = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		PromotorRequest promotor = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PromotorRequest.class);
 		
-		if (promotoresRequest.getIdPromotor()== null || promotoresRequest.getIndEstatus()==null) {
-			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
+		if (promotor.getIdPromotor()== null || promotor.getEstatus()==null) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, INFORMACION_INCOMPLETA);
 		}
-		promotores= new GestionarPromotores(promotoresRequest);
-		promotores.setIdUsuarioBaja(usuarioDto.getIdUsuario());
-		promotores.setIdUsuarioAlta(usuarioDto.getIdUsuario());
-		return providerRestTemplate.consumirServicio(promotores.cambiarEstatus().getDatos(), urlActualizar,
-				authentication);
+		promotores.setIdUsuarioModifica(usuario.getIdUsuario());
+		Response<?> response =  MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(promotores.cambiarEstatus(promotor).getDatos(), urlActualizar,
+				authentication), EXITO);
+		if(promotor.getEstatus()==1) {
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"ACTIVADO CORRECTAMENTE", MODIFICACION, authentication, usuario);
+		}else {
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DESACTIVADO CORRECTAMENTE", BAJA, authentication, usuario);
+		}
+		return response;
 	}
 
+	/*
 	@Override
 	public Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		 Response<?> response=null;

@@ -389,19 +389,22 @@ public class GestionarPromotores {
 	}
 
 
-	public DatosRequest cambiarEstatus() {
+	public DatosRequest cambiarEstatus(PromotorRequest promotor) {
 		DatosRequest request= new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("UPDATE SVT_PROMOTOR");
-		q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "" + this.indEstatus +"");
-		if(this.indEstatus==0) {
+		if(promotor.getEstatus()==0) {
 			q.agregarParametroValues("FEC_BAJA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
-			q.agregarParametroValues("ID_USUARIO_BAJA",  "'" + idUsuarioBaja + "'");
-		} 
-		log.info("estoy en : " +this.idPromotor);
-		q.addWhere("ID_PROMOTOR = " + this.idPromotor);
+			q.agregarParametroValues("ID_USUARIO_BAJA",  "" + idUsuarioModifica + "");
+			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "FALSE");
+		}else {
+			q.agregarParametroValues("FEC_ACTUALIZACION", "" +AppConstantes.CURRENT_TIMESTAMP + "");
+			q.agregarParametroValues("ID_USUARIO_MODIFICA",  "" + idUsuarioModifica + "");
+			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "TRUE");
+		}
+		q.addWhere("ID_PROMOTOR = " + promotor.getIdPromotor());
 			String query = q.obtenerQueryActualizar();
-		    String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+			String encoded = encodedQuery(query);
 			parametro.put(AppConstantes.QUERY, encoded);
 			request.setDatos(parametro);
 			return request;	
