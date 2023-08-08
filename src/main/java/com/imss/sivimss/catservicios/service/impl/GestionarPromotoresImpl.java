@@ -16,11 +16,13 @@ import java.util.logging.Level;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.imss.sivimss.catservicios.beans.GestionarPromotores;
+import com.imss.sivimss.catservicios.exception.BadRequestException;
 import com.imss.sivimss.catservicios.model.DiasDescansoModel;
 import com.imss.sivimss.catservicios.model.request.FiltrosPromotorRequest;
 import com.imss.sivimss.catservicios.model.request.PersonaRequest;
@@ -64,6 +66,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	private static final String MODIFICACION = "modificacion";
 	private static final String CONSULTA = "consulta";
 	private static final String INFORMACION_INCOMPLETA = "Informacion incompleta";
+	private static final String EXITO = "EXITO";
 
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
@@ -97,7 +100,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		PromotorResponse promoResponse;
 		UsuarioDto usuario = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
 		Response<?> response= MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(promotores.detalle(request, palabra, fecFormat).getDatos(), urlConsulta,
-				authentication), "EXITO");
+				authentication), EXITO);
 		if(response.getCodigo()==200) {
 			detallePromotorResponse = Arrays.asList(modelMapper.map(response.getDatos(), PromotorResponse[].class));
 			 promotorDescansos = Arrays.asList(modelMapper.map(providerRestTemplate.consumirServicio(promotores.buscarDiasDescanso(request, palabra, fecFormat).getDatos(), urlConsulta, authentication).getDatos(), DiasDescansoModel[].class));
@@ -105,7 +108,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			promoResponse.setPromotorDiasDescanso(promotorDescansos);
 			response.setCodigo(200);
             response.setError(false);
-            response.setMensaje("Exito");
+            response.setMensaje(EXITO);
 			 response.setDatos(ConvertirGenerico.convertInstanceOfObject(promoResponse));
 			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DETALLE PROMOTOR OK", CONSULTA, authentication, usuario);
 		}
@@ -132,7 +135,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				return response;
 			}
 			try {
-				
 				if(personaRequest.getPromotor().getFecPromotorDiasDescanso()==null) {
 					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrearMultiple,
 							authentication);
@@ -149,7 +151,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 					logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
 				}
 				}
-			return response;
 			}catch (Exception e) {
 				String consulta = promotores.insertarPersona(personaRequest.getPromotor()).getDatos().get("query").toString();
 				String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
@@ -157,43 +158,49 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
 				throw new IOException("5", e.getCause()) ;
 			}
-			
-	      
+			return response;	      
 }
 
 	
-/*
+
 	@Override
 	public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication) throws IOException, ParseException {
-		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		PersonaRequest promotoresRequest = gson.fromJson( String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PersonaRequest.class);
+		UsuarioDto usuario = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		PersonaRequest personaRequest = gson.fromJson( String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PersonaRequest.class);
 		
-		if (promotoresRequest.getIdPromotor() == null ) {
-			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta ");
+		if (personaRequest.getPromotor().getIdPromotor() == null || personaRequest.getIdPersona() == null ) {
+			throw new BadRequestException(HttpStatus.BAD_REQUEST, INFORMACION_INCOMPLETA);
 		}
-		promotores= new GestionarPromotores(promotoresRequest);
-		promotores.setFecIngreso(formatFecha(promotoresRequest.getFecIngreso()));
-		promotores.setIdUsuarioModifica(usuarioDto.getIdUsuario());
-		promotores.setIdUsuarioBaja(usuarioDto.getIdUsuario());
-		
-		Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizar().getDatos(), urlActualizar,
+		if(personaRequest.getPromotor().getFecIngreso()!=null) {
+			promotores.setFecIngreso(formatFecha(personaRequest.getPromotor().getFecIngreso()));
+		}
+		promotores.setIdUsuarioModifica(usuario.getIdUsuario());
+		try {
+		Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizarPersona(personaRequest.getIdPersona(),personaRequest.getCorreo()).getDatos(), urlActualizar,
 				authentication);
-		log.info("codigo : {} ", response.getCodigo());
-		if(response.getCodigo()==200 && promotoresRequest.getFecPromotorDiasDescanso()!=null) {
-			for(int i=0; i<promotoresRequest.getFecPromotorDiasDescanso().size(); i++) {
-				String fecha = formatFecha(promotores.getFecPromotorDiasDescanso().get(i));
-			log.info("fechas {} ", fecha);
-			 providerRestTemplate.consumirServicio(promotores.actualizarDiasDescanso(fecha, promotores.getIdPromotor()).getDatos(),
-                     urlActualizar, authentication);
-			}
-			}else if(response.getCodigo()==200) {
-					return response;
-				}else {
-				throw new BadRequestException(HttpStatus.BAD_REQUEST, "Error al actualizar promotor");
-					}
-				return response;
+		if(response.getCodigo()==200 && personaRequest.getPromotor().getFecPromotorDiasDescanso()!=null) {
+			//for(int i=0; i<personaRequest.getPromotor().getFecPromotorDiasDescanso().size(); i++) {
+				//String fecha = formatFecha(promotores.getFecPromotorDiasDescanso().get(i));
+			 providerRestTemplate.consumirServicio(promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos(), urlInsertarMultiple,
+					 authentication);
+			//}
+		}else if(response.getCodigo()==200 && personaRequest.getPromotor().getFecPromotorDiasDescanso()==null){
+		
+			providerRestTemplate.consumirServicio(promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos(), urlActualizar,
+					 authentication);
+		}
+		return response;
+		}catch (Exception e) {
+			String consulta = promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos().get("query").toString();
+			String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
+			log.error("Error al ejecutar la query" +encoded);
+			logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
+			throw new IOException("5", e.getCause()) ;
+		}
+				
 			}
 
+	/*
 	@Override
 	public Response<?> cambiarEstatusPromotor(DatosRequest request, Authentication authentication) throws IOException {
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
@@ -233,7 +240,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Curp no valida: " +desCurp);
 		} */
 		Response<?> response= MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(promotores.buscarCurp(curp).getDatos(), urlConsulta,
-				authentication), "EXITO");
+				authentication), EXITO);
 			Object rst=response.getDatos();
 			return !rst.toString().equals("[]");	
 			

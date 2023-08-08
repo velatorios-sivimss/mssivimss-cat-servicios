@@ -12,7 +12,7 @@ public interface GestionarPromotoresService {
 
 	Response<?> agregarPromotor(DatosRequest request, Authentication authentication)throws IOException, ParseException;
 
-	//Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)throws IOException, ParseException;
+	Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)throws IOException, ParseException;
 
 	//Response<?> cambiarEstatusPromotor(DatosRequest request, Authentication authentication) throws IOException;
 

@@ -12,7 +12,6 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
-import com.imss.sivimss.catservicios.model.request.BuscarPromotoresRequest;
 import com.imss.sivimss.catservicios.model.request.FiltrosPromotorRequest;
 import com.imss.sivimss.catservicios.model.request.PersonaRequest;
 import com.imss.sivimss.catservicios.model.request.PromotorRequest;
@@ -106,8 +105,7 @@ public class GestionarPromotores {
 		.from("SVT_PROMOTOR PR")
 		.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
 		.join("SVC_VELATORIO SV ", "PR.ID_VELATORIO = SV.ID_VELATORIO")
-		.leftJoin("SVT_PROMOTOR_DIAS_DESCANSO DIA", "PR.ID_PROMOTOR = DIA.ID_PROMOTOR");
-		queryUtil.where("DIA.IND_ACTIVO = 1");
+		.leftJoin("SVT_PROMOTOR_DIAS_DESCANSO DIA", "PR.ID_PROMOTOR = DIA.ID_PROMOTOR AND DIA.IND_ACTIVO = 1");
 		if(filtros.getIdDelegacion()!=null) {
 			queryUtil.where("SV.ID_DELEGACION = "+ filtros.getIdDelegacion() + "");
 		}
@@ -119,6 +117,7 @@ public class GestionarPromotores {
 					+"SP.NOM_PRIMER_APELLIDO,' ', "
 					+ "SP.NOM_SEGUNDO_APELLIDO) LIKE '%" + filtros.getNomPromotor() + "%'");	
 		}
+		queryUtil.groupBy("PR.ID_PROMOTOR");
 		String query = obtieneQuery(queryUtil);
 		log.info("promotores "+query);
 		String encoded = encodedQuery(query);
@@ -135,6 +134,7 @@ public class GestionarPromotores {
 		Map<String, Object> parametros = new HashMap<>();
 		SelectQueryUtil queryUtil = new SelectQueryUtil();
 		queryUtil.select("PR.ID_PROMOTOR AS idPromotor",
+				"SP.ID_PERSONA AS idPersona",
 				"PR.NUM_EMPLEADO AS numEmpleado",
 				"SV.ID_VELATORIO AS idVelatorio",
 				"SP.CVE_CURP AS curp",
@@ -222,8 +222,8 @@ public class GestionarPromotores {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PROMOTOR");
-		q.agregarParametroValues("ID_PERSONA", "idTabla");
 		q.agregarParametroValues("NUM_EMPLEADO", "'" + promotor.getNumEmpleado() + "'");
+		q.agregarParametroValues("ID_PERSONA", "idTabla");
 		q.agregarParametroValues("FEC_INGRESO", "'" +fecIngreso +"'");
 		q.agregarParametroValues("MON_SUELDOBASE", ""+ promotor.getSueldoBase() +"");
 		q.agregarParametroValues("ID_VELATORIO", "" + promotor.getIdVelatorio() + "");
@@ -259,31 +259,36 @@ public class GestionarPromotores {
 		queries.append(query);
 		//for(int i=0; i<this.fecPromotorDiasDescanso.size(); i++) {
 		for(String descansos: promotor.getFecPromotorDiasDescanso()) {
-			Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(descansos);
-	        DateFormat fechaDescanso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
-	        String fecha=fechaDescanso.format(dateF);
-			queries.append(" $$ " + insertarDiasDescanso(fecha));
-			  String encoded = DatatypeConverter.printBase64Binary(queries.toString().getBytes());
+			//Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(descansos);
+	        //DateFormat fechaDescanso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+	        String fecha=formatFecha(descansos);
+			queries.append("$$" + insertarDiasDescanso(fecha, promotor.getIdPromotor()));
+		}
+			  String encoded = encodedQuery(queries.toString());
 		        parametro.put(AppConstantes.QUERY, encoded);
 		        parametro.put("separador","$$");
 		        parametro.put("replace","idTabla");
 		        request.setDatos(parametro);
-		}
 		log.info("estoy en: " +queries);
 		return request;
 	      
 	}
 
-	public String insertarDiasDescanso(String descansos) {
+	public String insertarDiasDescanso(String descansos, Integer id) {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PROMOTOR_DIAS_DESCANSO");
-		q.agregarParametroValues("ID_PROMOTOR", "idTabla");
+		if(id!=null) {
+			q.agregarParametroValues("ID_PROMOTOR", ""+id+"");
+		}else {
+			q.agregarParametroValues("ID_PROMOTOR", "idTabla");
+		}
 		log.info(descansos);
 		q.agregarParametroValues("FEC_PROMOTOR_DIAS_DESCANSO", "'" +descansos+ "'");
 		q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", " 1 ");
 		String query = q.obtenerQueryInsertar();
-		parametro.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes()));
+		String encoded = encodedQuery(query);
+		parametro.put(AppConstantes.QUERY, encoded);
 		request.setDatos(parametro);
 		log.info(query);
 		return query;
@@ -309,35 +314,65 @@ public class GestionarPromotores {
 	}
 
 
-	public DatosRequest actualizar() {
+	public DatosRequest actualizarPersona(Integer idPersona, String correo) {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
-		final QueryHelper q = new QueryHelper("UPDATE SVT_PROMOTOR");
-		q.agregarParametroValues("FEC_INGRESO", "'" + fecIngreso +"'");
-		q.agregarParametroValues("MON_SUELDOBASE", ""+ this.monSueldoBase +"");
-		q.agregarParametroValues("ID_VELATORIO", "" + this.idVelatorio + "");
-		q.agregarParametroValues("DES_CORREO", "'" + this.desCorreo + "'");
-		q.agregarParametroValues("DES_PUESTO", "'" + this.desPuesto + "'");
-		q.agregarParametroValues("DES_CATEGORIA", "'" + this.desCategoria + "'");
-		q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "" +this.indEstatus+ "");
-		q.agregarParametroValues("ID_USUARIO_MODIFICA", "" +idUsuarioModifica+ "");
-		q.agregarParametroValues("FEC_ACTUALIZACION", "" +AppConstantes.CURRENT_TIMESTAMP + "");
-		if(this.indEstatus==0) {
-			q.agregarParametroValues("FEC_BAJA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
-			q.agregarParametroValues("ID_USUARIO_BAJA", "" + idUsuarioBaja + "");
-		}
-		q.agregarParametroValues("ID_DELEGACION", "" + this.idDelegacion + "");
-		q.addWhere("ID_PROMOTOR = " + this.idPromotor);
-		
+		final QueryHelper q = new QueryHelper("UPDATE SVC_PERSONA");
+		q.agregarParametroValues("DES_CORREO", setValor(correo));
+		q.addWhere("ID_PERSONA = " + idPersona);
 				String query = q.obtenerQueryActualizar();
-				String encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+				String encoded = encodedQuery(query);
 		        parametro.put(AppConstantes.QUERY, encoded);
 		        request.setDatos(parametro);
 		return request;
 	}
+	
+	public DatosRequest actualizarPromotor(PromotorRequest promotor) throws ParseException {
+		DatosRequest request = new DatosRequest();
+		Map<String, Object> parametro = new HashMap<>();
+		final QueryHelper q = new QueryHelper("UPDATE SVT_PROMOTOR");
+		log.info(fecIngreso);
+		q.agregarParametroValues("FEC_INGRESO", setValor(fecIngreso));
+		q.agregarParametroValues("MON_SUELDOBASE", ""+ promotor.getSueldoBase() +"");
+		q.agregarParametroValues("ID_VELATORIO", "" + promotor.getIdVelatorio() + "");
+		q.agregarParametroValues("DES_PUESTO", setValor(promotor.getPuesto()));
+		q.agregarParametroValues("DES_CATEGORIA", setValor(promotor.getCategoria()));
+		q.agregarParametroValues("ID_USUARIO_MODIFICA", "" +idUsuarioModifica+ "");
+		q.agregarParametroValues("FEC_ACTUALIZACION", "" +AppConstantes.CURRENT_TIMESTAMP + "");
+		if(promotor.getEstatus()==0) {
+			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "FALSE");
+			q.agregarParametroValues("FEC_BAJA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
+			q.agregarParametroValues("ID_USUARIO_BAJA", "" + idUsuarioModifica + "");
+		}else {
+			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "TRUE");
+		}
+		q.addWhere("ID_PROMOTOR = " + promotor.getIdPromotor());
+		String query = q.obtenerQueryActualizar();
+		log.info(query);
+		if(promotor.getFecPromotorDiasDescanso()!=null) {
+				StringBuilder queries= new StringBuilder();
+				queries.append(query);
+				for(String descansos: promotor.getFecPromotorDiasDescanso()) {
+				//	Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(descansos);
+			      //  DateFormat fechaDescanso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+			        String fecha=formatFecha(descansos);
+					queries.append("$$" + insertarDiasDescanso(fecha, promotor.getIdPromotor()));
+				}
+				log.info("actualizar "+query);
+					  String encoded = encodedQuery(queries.toString());
+				        parametro.put(AppConstantes.QUERY, encoded);
+				        parametro.put("separador","$$");
+				        parametro.put("replace","idTabla");
+		}else {
+			 String encoded = encodedQuery(query);
+		        parametro.put(AppConstantes.QUERY, encoded);
+		}
+				        request.setDatos(parametro);
+		return request;
+	}
 
 
-	public DatosRequest actualizarDiasDescanso(String fecDescanso, Integer idPromotor) {
+	public DatosRequest actualizarDiasDescanso(String fecDescanso) {
 		DatosRequest request= new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PROMOTOR_DIAS_DESCANSO");
@@ -386,7 +421,12 @@ public class GestionarPromotores {
 		return request;
 		
 	}
-	
+	   public String formatFecha(String fecha) throws ParseException {
+			Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(fecha);
+			DateFormat fecForma = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
+			return fecForma.format(dateF);
+	   }
+	   
 	private static String obtieneQuery(SelectQueryUtil queryUtil) {
         return queryUtil.build();
     }

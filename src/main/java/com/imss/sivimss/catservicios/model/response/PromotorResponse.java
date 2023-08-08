@@ -21,6 +21,7 @@ import lombok.ToString;
 public class PromotorResponse {
 	
 	private Integer idPromotor;
+	private Integer idPersona;
 	private String numEmpleado;
 	private String velatorio;
 	private String nombre;

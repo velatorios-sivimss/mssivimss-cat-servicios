@@ -36,7 +36,6 @@ public class GestionarPromotoresController {
 		return gestionarPromotoresService.verDetalle(request,authentication);
       
 	}
-
 	
 	@PostMapping("insertar/promotor")
 	public Response<?> agregar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException{
@@ -44,13 +43,14 @@ public class GestionarPromotoresController {
 		return gestionarPromotoresService.agregarPromotor(request,authentication);
 	}
 	
-/*	@PostMapping("/actualiza")
+	@PostMapping("modificar/promotor")
 	public Response<?> actualizar(@RequestBody DatosRequest request,Authentication authentication) throws IOException, ParseException {
 	
 		return gestionarPromotoresService.actualizarPromotor(request,authentication);
       
 	}
-	
+
+	/*
 	@PostMapping("/estatus")
 	public Response<?> cambiarEstatus(@RequestBody DatosRequest request,Authentication authentication) throws IOException {
 	

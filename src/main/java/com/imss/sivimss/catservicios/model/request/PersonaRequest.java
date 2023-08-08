@@ -18,7 +18,7 @@ import lombok.Setter;
 @JsonIgnoreType(value = true)
 public class PersonaRequest {
 	
-	
+	private Integer idPersona;
 	private String curp;
 	private String nomPromotor;
 	private String aPaterno;
