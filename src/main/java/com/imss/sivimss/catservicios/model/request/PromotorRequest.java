@@ -19,6 +19,12 @@ import lombok.Setter;
 public class PromotorRequest {
 	
 	private Integer idPromotor;
+	private String curp;
+	private String nomPromotor;
+	private String aPaterno;
+	private String aMaterno;
+	private String fecNac;
+	private String correo;
 	private String numEmpleado;
 	private String fecIngreso;
 	private Integer sueldoBase;

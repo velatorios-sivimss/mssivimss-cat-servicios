@@ -56,26 +56,26 @@ public class GestionarPromotores {
 	private Integer idUsuarioModifica;
 	private Integer idUsuarioBaja;
 	private Integer idDelegacion;
-   private List<String> fecPromotorDiasDescanso;
+    private List<String> fecPromotorDiasDescanso;
 	private Integer indEstatusDescanso;
 	
-	public GestionarPromotores(PersonaRequest personaRequest) {
-		this.desCurp = personaRequest.getCurp();
-		this.nomPromotor = personaRequest.getNomPromotor();
-		this.aPaterno = personaRequest.getAPaterno();
-		this.aMaterno = personaRequest.getAMaterno();
-		this.desCorreo = personaRequest.getCorreo();
-		/*this.fecNacimiento = promotoresRequest.getFecNacimiento();
-		this.fecIngreso = promotoresRequest.getFecIngreso();
-		this.idPromotor = promotoresRequest.getIdPromotor();
-		this.numEmpleado = promotoresRequest.getNumEmpleado();
-		this.monSueldoBase = promotoresRequest.getMonSueldoBase();
-		this.idVelatorio = promotoresRequest.getIdVelatorio();
-		this.desCorreo = promotoresRequest.getDesCorreo();
-		this.desPuesto = promotoresRequest.getDesPuesto();
-		this.desCategoria = promotoresRequest.getDesCategoria();
-		this.indEstatus = promotoresRequest.getIndEstatus();
-		this.fecPromotorDiasDescanso = promotoresRequest.getFecPromotorDiasDescanso(); */
+	public GestionarPromotores(PromotorRequest promoRequest) {
+		this.desCurp = promoRequest.getCurp();
+		this.nomPromotor = promoRequest.getNomPromotor();
+		this.aPaterno = promoRequest.getAPaterno();
+		this.aMaterno = promoRequest.getAMaterno();
+		this.desCorreo = promoRequest.getCorreo();
+		this.fecNacimiento = promoRequest.getFecNac();
+		this.fecIngreso = promoRequest.getFecIngreso();
+		this.idPromotor = promoRequest.getIdPromotor();
+		this.numEmpleado = promoRequest.getNumEmpleado();
+		this.monSueldoBase = promoRequest.getSueldoBase();
+		this.idVelatorio = promoRequest.getIdVelatorio();
+		this.desCorreo = promoRequest.getCorreo();
+		this.desPuesto = promoRequest.getPuesto();
+		this.desCategoria = promoRequest.getCategoria();
+		this.indEstatus = promoRequest.getEstatus();
+		this.fecPromotorDiasDescanso = promoRequest.getFecPromotorDiasDescanso(); 
 	}
 
 
@@ -83,12 +83,12 @@ public class GestionarPromotores {
 		Map<String, Object> parametros = new HashMap<>();
 		SelectQueryUtil queryUtil = new SelectQueryUtil();
 		queryUtil.select("PR.ID_PROMOTOR AS idPromotor",
-				"PR.NUM_EMPLEADO AS numEmpleado",
-				"SP.CVE_CURP AS curp",
-				"SP.NOM_PERSONA AS nombre",
-				"SP.NOM_PRIMER_APELLIDO AS primerApellido",
-				"SP.NOM_SEGUNDO_APELLIDO AS segundoApellido",
-				"DATE_FORMAT(SP.FEC_NAC, '"+fecFormat+"') AS fecNac",
+				"PR.NUM_EMPLEDO AS numEmpleado",
+				"PR.DES_CURP AS curp",
+				"PR.NOM_PROMOTOR AS nombre",
+				"PR.NOM_PAPELLIDO AS primerApellido",
+				"PR.NOM_SAPELLIDO AS segundoApellido",
+				"DATE_FORMAT(PR.FEC_NACIMIENTO, '"+fecFormat+"') AS fecNac",
 				"DATE_FORMAT(PR.FEC_INGRESO, '"+fecFormat+"') AS fecIngreso",
 				"DATE_FORMAT(PR.FEC_BAJA, '"+fecFormat+"') AS fecBaja",
 				"PR.MON_SUELDOBASE AS sueldoBase",
@@ -98,24 +98,24 @@ public class GestionarPromotores {
 				"IF(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()) < 12, "
 				+ "CONCAT(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' meses'), "
 				+ "CONCAT(TIMESTAMPDIFF(YEAR, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' año (s)') )AS antiguedad",
-				"SP.DES_CORREO AS correo",
+				"PR.DES_CORREO AS correo",
 				"PR.DES_PUESTO AS puesto",
 				"PR.DES_CATEGORIA AS categoria",
 				"PR.IND_ACTIVO AS estatus")
 		.from("SVT_PROMOTOR PR")
-		.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
+		//.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
 		.join("SVC_VELATORIO SV ", "PR.ID_VELATORIO = SV.ID_VELATORIO")
 		.leftJoin("SVT_PROMOTOR_DIAS_DESCANSO DIA", "PR.ID_PROMOTOR = DIA.ID_PROMOTOR AND DIA.IND_ACTIVO = 1");
 		if(filtros.getIdDelegacion()!=null) {
 			queryUtil.where("SV.ID_DELEGACION = "+ filtros.getIdDelegacion() + "");
 		}
 		if(filtros.getIdVelatorio()!=null){
-			queryUtil.where("SV.ID_VELATORIO = " + filtros.getIdVelatorio() + "");	
+			queryUtil.where("PR.ID_VELATORIO = " + filtros.getIdVelatorio() + "");	
 		}
 		if(filtros.getNomPromotor()!=null){
-			queryUtil.where("CONCAT(SP.NOM_PERSONA,' ', "
-					+"SP.NOM_PRIMER_APELLIDO,' ', "
-					+ "SP.NOM_SEGUNDO_APELLIDO) LIKE '%" + filtros.getNomPromotor() + "%'");	
+			queryUtil.where("CONCAT(PR.NOM_PROMOTOR,' ', "
+					+"PR.NOM_PAPELLIDO,' ', "
+					+ "PR.NOM_SAPELLIDO) LIKE '%" + filtros.getNomPromotor() + "%'");	
 		}
 		queryUtil.groupBy("PR.ID_PROMOTOR");
 		String query = obtieneQuery(queryUtil);
@@ -134,14 +134,13 @@ public class GestionarPromotores {
 		Map<String, Object> parametros = new HashMap<>();
 		SelectQueryUtil queryUtil = new SelectQueryUtil();
 		queryUtil.select("PR.ID_PROMOTOR AS idPromotor",
-				"SP.ID_PERSONA AS idPersona",
-				"PR.NUM_EMPLEADO AS numEmpleado",
+				"PR.NUM_EMPLEDO AS numEmpleado",
 				"SV.ID_VELATORIO AS idVelatorio",
-				"SP.CVE_CURP AS curp",
-				"SP.NOM_PERSONA AS nombre",
-				"SP.NOM_PRIMER_APELLIDO AS primerApellido",
-				"SP.NOM_SEGUNDO_APELLIDO AS segundoApellido",
-				"DATE_FORMAT(SP.FEC_NAC, '"+fecFormat+"') AS fecNac",
+				"PR.DES_CURP AS curp",
+				"PR.NOM_PROMOTOR AS nombre",
+				"PR.NOM_PAPELLIDO AS primerApellido",
+				"PR.NOM_SAPELLIDO AS segundoApellido",
+				"DATE_FORMAT(PR.FEC_NACIMIENTO, '"+fecFormat+"') AS fecNac",
 				"DATE_FORMAT(PR.FEC_INGRESO, '"+fecFormat+"') AS fecIngreso",
 				"DATE_FORMAT(PR.FEC_BAJA, '"+fecFormat+"') AS fecBaja",
 				"PR.MON_SUELDOBASE AS sueldoBase",
@@ -149,12 +148,12 @@ public class GestionarPromotores {
 				"IF(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()) < 12, "
 				+ "CONCAT(TIMESTAMPDIFF(MONTH, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' meses'), "
 				+ "CONCAT(TIMESTAMPDIFF(YEAR, PR.FEC_INGRESO, CURRENT_TIMESTAMP()), ' año (s)') )AS antiguedad",
-				"SP.DES_CORREO AS correo",
+				"PR.DES_CORREO AS correo",
 				"PR.DES_PUESTO AS puesto",
 				"PR.DES_CATEGORIA AS categoria",
 				"PR.IND_ACTIVO AS estatus")
 		.from("SVT_PROMOTOR PR")
-		.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
+		//.join("SVC_PERSONA SP", "PR.ID_PERSONA = SP.ID_PERSONA")
 		.join("SVC_VELATORIO SV ", "PR.ID_VELATORIO = SV.ID_VELATORIO");
 		queryUtil.where("PR.ID_PROMOTOR = :id")
 		.setParameter("id", Integer.parseInt(palabra));
