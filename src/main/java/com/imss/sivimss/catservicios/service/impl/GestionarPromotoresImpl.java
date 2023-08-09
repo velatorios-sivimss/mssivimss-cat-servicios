@@ -117,18 +117,18 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	}
 	
 	
-	@Override
+/*	@Override
 	public Response<?> agregarPromotor(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		Response<?> response = new Response<>();
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		PersonaRequest personaRequest = gson.fromJson(datosJson, PersonaRequest.class);	
+		PromotorRequest promoRequest = gson.fromJson(datosJson, PromotorRequest.class);	
 		UsuarioDto usuario = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		    promotores=new GestionarPromotores(personaRequest);
-		    promotores.setFecIngreso(formatFecha(personaRequest.getPromotor().getFecIngreso()));
-		    promotores.setFecNacimiento(formatFecha(personaRequest.getFecNac()));
+		    promotores=new GestionarPromotores(promoRequest);
+		    promotores.setFecIngreso(formatFecha(promoRequest.getFecIngreso()));
+		    promotores.setFecNacimiento(formatFecha(promoRequest.getFecNac()));
 			promotores.setIdUsuarioAlta(usuario.getIdUsuario());
 	
-			if(validarCurp(personaRequest.getCurp(), authentication)) {
+			if(validarCurp(promoRequest.getCurp(), authentication)) {
 				logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"EL PROMOTOR QUE DESEAS INGRESAR YA SE ENCUENTRA REGISTRADO EN EL SISTEMA.", ALTA, authentication, usuario);
 				response.setCodigo(200);
 				response.setError(true);
@@ -136,8 +136,8 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				return response;
 			}
 			try {
-				if(personaRequest.getPromotor().getFecPromotorDiasDescanso()==null) {
-					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrearMultiple,
+				if(promoRequest.getFecPromotorDiasDescanso()==null) {
+					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(promoRequest.getFecPromotorDiasDescanso()).getDatos(), urlCrearMultiple,
 							authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
 				}
@@ -199,7 +199,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			throw new IOException("5", e.getCause()) ;
 		}
 				
-			}
+			} /*
 
 	
 	@Override
@@ -257,4 +257,24 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		DateFormat fecForma = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
 		return fecForma.format(dateF);       
 	}
+
+		@Override
+		public Response<?> agregarPromotor(DatosRequest request, Authentication authentication)
+				throws IOException, ParseException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)
+				throws IOException, ParseException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Response<?> cambiarEstatus(DatosRequest request, Authentication authentication) throws IOException {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		}
