@@ -117,7 +117,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	}
 	
 	
-/*	@Override
+	@Override
 	public Response<?> agregarPromotor(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		Response<?> response = new Response<>();
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
@@ -137,23 +137,22 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			}
 			try {
 				if(promoRequest.getFecPromotorDiasDescanso()==null) {
-					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(promoRequest.getFecPromotorDiasDescanso()).getDatos(), urlCrearMultiple,
-							authentication);
+				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(promoRequest.getFecPromotorDiasDescanso()).getDatos(), urlCrearMultiple,	authentication);
+					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrear, authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
 				}
 				else {
-					response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrear,
-							authentication);
+				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrear, authentication);
+					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrearMultiple, authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DATOS GENERALES CORRECTAMENTE", ALTA, authentication, usuario);
-				if(response.getCodigo()==200) {
+		/*		if(response.getCodigo()==200) {
 					Integer idPersona =Integer.parseInt(response.getDatos().toString());
-					providerRestTemplate.consumirServicio(promotores.insertarPromotor(idPersona, personaRequest.getPromotor()).getDatos(), urlCrearMultiple,
-							authentication);
+					providerRestTemplate.consumirServicio(promotores.insertarPromotor(idPersona, personaRequest.getPromotor()).getDatos(), urlCrearMultiple,				authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
-				}
+				} */
 				}
 			}catch (Exception e) {
-				String consulta = promotores.insertarPersona(personaRequest.getPromotor()).getDatos().get("query").toString();
+				String consulta = promotores.insertarPromotor().getDatos().get("query").toString();
 				String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
 				log.error("Error al ejecutar la query" +encoded);
 				logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
@@ -199,7 +198,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			throw new IOException("5", e.getCause()) ;
 		}
 				
-			} /*
+			} 
 
 	
 	@Override
@@ -221,8 +220,8 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		return response;
 	}
 
-	/*
-	@Override
+	
+/*	@Override
 	public Response<?> cambiarEstatusDescansos(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		 Response<?> response=null;
 		PersonaRequest promotoresRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PersonaRequest.class);
@@ -237,7 +236,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				authentication);
 		}
 		return response;
-	}	 */
+	}	  */
 	
 	private boolean validarCurp(String curp, Authentication authentication) throws IOException {
 	/*	String regex="[A-Z]{4}+\\d{6}+[HM]+[A-Z]{2}+[B-DF-HJ-NP-TV-Z]{3}+[A-Z0-9]+[0-9]";
@@ -258,23 +257,4 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		return fecForma.format(dateF);       
 	}
 
-		@Override
-		public Response<?> agregarPromotor(DatosRequest request, Authentication authentication)
-				throws IOException, ParseException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication)
-				throws IOException, ParseException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Response<?> cambiarEstatus(DatosRequest request, Authentication authentication) throws IOException {
-			// TODO Auto-generated method stub
-			return null;
-		}
 		}

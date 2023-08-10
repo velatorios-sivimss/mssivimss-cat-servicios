@@ -186,7 +186,7 @@ public class GestionarPromotores {
 	}
 	
 	
-	public DatosRequest insertarPersona(PromotorRequest promotor) {
+	/* public DatosRequest insertarPersona(PromotorRequest promotor) {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("INSERT INTO SVC_PERSONA");
@@ -214,7 +214,7 @@ public class GestionarPromotores {
 			        request.setDatos(parametro);
 		}
 				return request;
-	}
+	} */
 
 	
 	private String queryPromotor(PromotorRequest promotor) {
@@ -239,36 +239,47 @@ public class GestionarPromotores {
 	}
 
 
-	public DatosRequest insertarPromotor(Integer idPersona, PromotorRequest promotor) throws ParseException {
+	public DatosRequest insertarPromotor() throws ParseException {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		final QueryHelper q = new QueryHelper("INSERT INTO SVT_PROMOTOR");
-		q.agregarParametroValues("ID_PERSONA", ""+idPersona+"");
-		q.agregarParametroValues("NUM_EMPLEADO", "'" + promotor.getNumEmpleado() + "'");
+		q.agregarParametroValues("DES_CURP", "'" + this.desCurp + "'");
+		q.agregarParametroValues("NOM_PROMOTOR", setValor(this.nomPromotor));
+		q.agregarParametroValues("NOM_PAPELLIDO", setValor(this.aPaterno));
+		q.agregarParametroValues("NOM_SAPELLIDO", setValor(this.aMaterno));
+		q.agregarParametroValues("FEC_NACIMIENTO", "'" +fecNacimiento +"'");
+		q.agregarParametroValues("DES_CORREO", setValor(this.desCorreo));
+		q.agregarParametroValues("NUM_EMPLEDO", "'" +this.numEmpleado + "'");
 		q.agregarParametroValues("FEC_INGRESO", "'" +fecIngreso +"'");
-		q.agregarParametroValues("MON_SUELDOBASE", ""+ promotor.getSueldoBase() +"");
-		q.agregarParametroValues("ID_VELATORIO", "" + promotor.getIdVelatorio() + "");
-		q.agregarParametroValues("DES_PUESTO", "'" + promotor.getPuesto() + "'");
-		q.agregarParametroValues("DES_CATEGORIA", setValor(promotor.getCategoria()));
+		q.agregarParametroValues("MON_SUELDOBASE", ""+ this.monSueldoBase +"");
+		q.agregarParametroValues("ID_VELATORIO", "" + this.idVelatorio + "");
+		q.agregarParametroValues("DES_PUESTO", "'" + this.desPuesto + "'");
+		q.agregarParametroValues("DES_CATEGORIA", setValor(this.desCategoria));
 		q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "1");
 		q.agregarParametroValues("ID_USUARIO_ALTA", "" +idUsuarioAlta+ "");
 		q.agregarParametroValues("FEC_ALTA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
 		String query = q.obtenerQueryInsertar();
-		StringBuilder queries= new StringBuilder();
-		queries.append(query);
-		//for(int i=0; i<this.fecPromotorDiasDescanso.size(); i++) {
-		for(String descansos: promotor.getFecPromotorDiasDescanso()) {
-			//Date dateF = new SimpleDateFormat("dd/MM/yyyy").parse(descansos);
-	        //DateFormat fechaDescanso = new SimpleDateFormat("yyyy-MM-dd", new Locale("es", "MX"));
-	        String fecha=formatFecha(descansos);
-			queries.append("$$" + insertarDiasDescanso(fecha, promotor.getIdPromotor()));
+		if(this.fecPromotorDiasDescanso!=null) {
+			StringBuilder queries= new StringBuilder();
+			queries.append(query);
+			//for(int i=0; i<this.fecPromotorDiasDescanso.size(); i++) {
+			for(String descansos: this.fecPromotorDiasDescanso) {
+		        String fecha=formatFecha(descansos);
+				queries.append("$$" + insertarDiasDescanso(fecha, this.idPromotor));
+			}
+			log.info("estoy en fecDescansos: " +queries.toString());
+				  String encoded = encodedQuery(queries.toString());
+				  parametro.put(AppConstantes.QUERY, encoded);
+			        parametro.put("separador","$$");
+			        parametro.put("replace","idTabla");
+		}else {
+			log.info("estoy en: " +query);
+			String encoded = encodedQuery(query.toString());
+			parametro.put(AppConstantes.QUERY, encoded);
 		}
-			  String encoded = encodedQuery(queries.toString());
-		        parametro.put(AppConstantes.QUERY, encoded);
-		        parametro.put("separador","$$");
-		        parametro.put("replace","idTabla");
+		        
 		        request.setDatos(parametro);
-		log.info("estoy en: " +queries);
+	
 		return request;
 	      
 	}
@@ -298,10 +309,10 @@ public class GestionarPromotores {
 		DatosRequest request= new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
 		SelectQueryUtil queryUtil = new SelectQueryUtil();
-		queryUtil.select("CVE_CURP")
-		.from("SVC_PERSONA SP" )
-		.join("SVT_PROMOTOR PROM", "SP.ID_PERSONA = PROM.ID_PERSONA");
-		queryUtil.where("SP.CVE_CURP = :curp")
+		queryUtil.select("DES_CURP")
+		.from("SVT_PROMOTOR" );
+		//.join("SVT_PROMOTOR PROM", "SP.ID_PERSONA = PROM.ID_PERSONA");
+		queryUtil.where("DES_CURP = :curp")
 		.setParameter("curp", curp);
 		String query = obtieneQuery(queryUtil);
 		log.info("valida " +query);
