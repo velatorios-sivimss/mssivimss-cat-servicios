@@ -144,7 +144,8 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				else {
 				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrear, authentication);
 					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrearMultiple, authentication);
-					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DATOS GENERALES CORRECTAMENTE", ALTA, authentication, usuario);
+					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
+					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
 		/*		if(response.getCodigo()==200) {
 					Integer idPersona =Integer.parseInt(response.getDatos().toString());
 					providerRestTemplate.consumirServicio(promotores.insertarPromotor(idPersona, personaRequest.getPromotor()).getDatos(), urlCrearMultiple,				authentication);
@@ -166,38 +167,40 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	@Override
 	public Response<?> actualizarPromotor(DatosRequest request, Authentication authentication) throws IOException, ParseException {
 		UsuarioDto usuario = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		PersonaRequest personaRequest = gson.fromJson( String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PersonaRequest.class);
+		PromotorRequest promoRequest = gson.fromJson( String.valueOf(request.getDatos().get(AppConstantes.DATOS)), PromotorRequest.class);
 		
-		if (personaRequest.getPromotor().getIdPromotor() == null || personaRequest.getIdPersona() == null ) {
+		if (promoRequest.getIdPromotor() == null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, INFORMACION_INCOMPLETA);
 		}
-		if(personaRequest.getPromotor().getFecIngreso()!=null) {
-			promotores.setFecIngreso(formatFecha(personaRequest.getPromotor().getFecIngreso()));
-		}
+		promotores=new GestionarPromotores(promoRequest);
 		promotores.setIdUsuarioModifica(usuario.getIdUsuario());
 		try {
-		Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizarPersona(personaRequest.getIdPersona(),personaRequest.getCorreo()).getDatos(), urlActualizar,
-				authentication);
-		if(response.getCodigo()==200 && personaRequest.getPromotor().getFecPromotorDiasDescanso()!=null) {
+			if(promoRequest.getFecPromotorDiasDescanso()==null) {
+				Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizarPromotor().getDatos(), urlActualizar, authentication);
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR MODIFICADO CORRECTAMENTE", ALTA, authentication, usuario);
+				return response;
+			}else {
+				
 			//for(int i=0; i<personaRequest.getPromotor().getFecPromotorDiasDescanso().size(); i++) {
 				//String fecha = formatFecha(promotores.getFecPromotorDiasDescanso().get(i));
-			 providerRestTemplate.consumirServicio(promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos(), urlInsertarMultiple,
+				Response<?> response = providerRestTemplate.consumirServicio(promotores.actualizarPromotor().getDatos(), urlInsertarMultiple,
 					 authentication);
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR MODIFICADO CORRECTAMENTE", ALTA, authentication, usuario);
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
+				return response;
 			//}
-		}else if(response.getCodigo()==200 && personaRequest.getPromotor().getFecPromotorDiasDescanso()==null){
+		}/*else if(response.getCodigo()==200 && personaRequest.getPromotor().getFecPromotorDiasDescanso()==null){
 		
 			providerRestTemplate.consumirServicio(promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos(), urlActualizar,
 					 authentication);
-		}
-		return response;
+		}*/
 		}catch (Exception e) {
-			String consulta = promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos().get("query").toString();
+			String consulta = promotores.actualizarPromotor().getDatos().get("query").toString();
 			String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
 			log.error("Error al ejecutar la query" +encoded);
 			logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
 			throw new IOException("5", e.getCause()) ;
 		}
-				
 			} 
 
 	
