@@ -29,7 +29,7 @@ public class ProviderServiceRestTemplate {
 	public Response<?> consumirServicio(Map<String, Object> dato, String url, Authentication authentication)
 			throws IOException {
 		try {
-			Response respuestaGenerado = restTemplateUtil.sendPostRequestByteArrayToken(url,
+			Response<?> respuestaGenerado = restTemplateUtil.sendPostRequestByteArrayToken(url,
 					new EnviarDatosRequest(dato), jwtTokenProvider.createToken((String) authentication.getPrincipal()),
 					Response.class);
 			return validarResponse(respuestaGenerado);
@@ -39,11 +39,11 @@ public class ProviderServiceRestTemplate {
 		}
 	}
 
-	public Response<?> consumirServicioReportes(Map<String, Object> dato, String nombreReporte, String tipoReporte,
+	public Response<?> consumirServicioReportes(Map<String, Object> dato,
 			String url, Authentication authentication) throws IOException {
 		try {
-			Response respuestaGenerado = restTemplateUtil.sendPostRequestByteArrayReportesToken(url,
-					new DatosReporteDTO(dato, nombreReporte, tipoReporte),
+			Response<?> respuestaGenerado = restTemplateUtil.sendPostRequestByteArrayReportesToken(url,
+					new DatosReporteDTO(dato),
 					jwtTokenProvider.createToken((String) authentication.getPrincipal()), Response.class);
 			return validarResponse(respuestaGenerado);
 		} catch (IOException exception) {
@@ -52,7 +52,7 @@ public class ProviderServiceRestTemplate {
 		}
 	}
 
-	public Response<?> validarResponse(Response respuestaGenerado) {
+	public Response<?> validarResponse(Response<?>respuestaGenerado) {
 		String codigo = respuestaGenerado.getMensaje().substring(0, 3);
 		if (codigo.equals("500") || codigo.equals("404") || codigo.equals("400") || codigo.equals("403")) {
 			Gson gson = new Gson();
@@ -106,14 +106,16 @@ public class ProviderServiceRestTemplate {
 
 			}
 		}
-		Response response;
+		Response<?>  response;
 		try {
 			response = isExceptionResponseMs == 1 ? gson.fromJson(error.substring(2, error.length() - 1), Response.class)
 				: new Response<>(true, codigoError, error.toString().trim(), Collections.emptyList());
+			log.info("respuestaProvider error: {}",e);
 		} catch (Exception e2) {
+			log.info("respuestaProvider error: {}",e);
 			return new Response<>(true, HttpStatus.REQUEST_TIMEOUT.value(), AppConstantes.CIRCUITBREAKER, Collections.emptyList());
 		}
-		return response;
+		 return MensajeResponseUtil.mensajeResponse(response, "");
 	}
 
 }

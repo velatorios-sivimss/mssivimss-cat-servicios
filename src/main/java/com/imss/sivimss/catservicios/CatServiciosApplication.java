@@ -15,7 +15,7 @@ import com.imss.sivimss.catservicios.util.NoRedirectSimpleClientHttpRequestFacto
 public class CatServiciosApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CatServiciosApplication.class, args);
+		SpringApplication.run(CatServiciosApplication.class);
 	}
 
 	@Bean
