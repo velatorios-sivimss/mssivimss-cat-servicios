@@ -25,7 +25,6 @@ import com.imss.sivimss.catservicios.beans.GestionarPromotores;
 import com.imss.sivimss.catservicios.exception.BadRequestException;
 import com.imss.sivimss.catservicios.model.DiasDescansoModel;
 import com.imss.sivimss.catservicios.model.request.FiltrosPromotorRequest;
-import com.imss.sivimss.catservicios.model.request.PersonaRequest;
 import com.imss.sivimss.catservicios.model.request.PromotorRequest;
 import com.imss.sivimss.catservicios.model.request.UsuarioDto;
 import com.imss.sivimss.catservicios.model.response.PromotorResponse;
@@ -137,21 +136,14 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			}
 			try {
 				if(promoRequest.getFecPromotorDiasDescanso()==null) {
-				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(promoRequest.getFecPromotorDiasDescanso()).getDatos(), urlCrearMultiple,	authentication);
 					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrear, authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
 					
 				}else {
-				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrear, authentication);
 					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrearMultiple, authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
 						
-					/*		if(response.getCodigo()==200) {
-					Integer idPersona =Integer.parseInt(response.getDatos().toString());
-					providerRestTemplate.consumirServicio(promotores.insertarPromotor(idPersona, personaRequest.getPromotor()).getDatos(), urlCrearMultiple,				authentication);
-					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
-				} */
 				}
 				return response;
 			}catch (Exception e) {
@@ -183,19 +175,13 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				return response;
 			}else {
 				
-			//for(int i=0; i<personaRequest.getPromotor().getFecPromotorDiasDescanso().size(); i++) {
-				//String fecha = formatFecha(promotores.getFecPromotorDiasDescanso().get(i));
 				Response<?> response = providerRestTemplate.consumirServicio(promotores.actualizarPromotor().getDatos(), urlInsertarMultiple,
 					 authentication);
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR MODIFICADO CORRECTAMENTE", ALTA, authentication, usuario);
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
 				return response;
-			//}
-		}/*else if(response.getCodigo()==200 && personaRequest.getPromotor().getFecPromotorDiasDescanso()==null){
-		
-			providerRestTemplate.consumirServicio(promotores.actualizarPromotor(personaRequest.getPromotor()).getDatos(), urlActualizar,
-					 authentication);
-		}*/
+			
+		}
 		}catch (Exception e) {
 			String consulta = promotores.actualizarPromotor().getDatos().get("query").toString();
 			String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
@@ -244,11 +230,6 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 	}	  */
 	
 	private boolean validarCurp(String curp, Authentication authentication) throws IOException {
-	/*	String regex="[A-Z]{4}+\\d{6}+[HM]+[A-Z]{2}+[B-DF-HJ-NP-TV-Z]{3}+[A-Z0-9]+[0-9]";
-		Pattern patron = Pattern.compile(regex);
-		if(!patron.matcher(desCurp).matches()) {
-			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Curp no valida: " +desCurp);
-		} */
 		Response<?> response= MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(promotores.buscarCurp(curp).getDatos(), urlConsulta,
 				authentication), EXITO);
 			Object rst=response.getDatos();
