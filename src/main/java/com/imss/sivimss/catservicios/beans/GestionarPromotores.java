@@ -50,12 +50,7 @@ public class GestionarPromotores {
 	private String desPuesto;
 	private String desCategoria;
 	private Integer indEstatus;
-	private Integer idUsuarioAlta;
-	private Date fecAlta;
-	private Date fecActualizacion;
-	private Integer idUsuarioModifica;
-	private Integer idUsuarioBaja;
-	private Integer idDelegacion;
+	private Integer idUsuario;
     private List<String> fecPromotorDiasDescanso;
 	private Integer indEstatusDescanso;
 	
@@ -229,7 +224,7 @@ public class GestionarPromotores {
 		q.agregarParametroValues("DES_PUESTO", "'" + promotor.getPuesto() + "'");
 		q.agregarParametroValues("DES_CATEGORIA", setValor(promotor.getCategoria()));
 		q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "1");
-		q.agregarParametroValues("ID_USUARIO_ALTA", "" +idUsuarioAlta+ "");
+		q.agregarParametroValues("ID_USUARIO_ALTA", "" +idUsuario+ "");
 		q.agregarParametroValues("FEC_ALTA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
 		String query = q.obtenerQueryInsertar();
 		   String encoded = encodedQuery(query);
@@ -256,7 +251,7 @@ public class GestionarPromotores {
 		q.agregarParametroValues("DES_PUESTO", "'" + this.desPuesto + "'");
 		q.agregarParametroValues("DES_CATEGORIA", setValor(this.desCategoria));
 		q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "1");
-		q.agregarParametroValues("ID_USUARIO_ALTA", "" +idUsuarioAlta+ "");
+		q.agregarParametroValues("ID_USUARIO_ALTA", "" +idUsuario+ "");
 		q.agregarParametroValues("FEC_ALTA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
 		String query = q.obtenerQueryInsertar();
 		if(this.fecPromotorDiasDescanso!=null) {
@@ -274,7 +269,7 @@ public class GestionarPromotores {
 			        parametro.put("replace","idTabla");
 		}else {
 			log.info("estoy en: " +query);
-			String encoded = encodedQuery(query.toString());
+			String encoded = encodedQuery(query);
 			parametro.put(AppConstantes.QUERY, encoded);
 		}
 		        
@@ -348,12 +343,12 @@ public class GestionarPromotores {
 		q.agregarParametroValues("ID_VELATORIO", "" + this.idVelatorio + "");
 		q.agregarParametroValues("DES_PUESTO", setValor(this.desPuesto));
 		q.agregarParametroValues("DES_CATEGORIA", setValor(this.desCategoria));
-		q.agregarParametroValues("ID_USUARIO_MODIFICA", "" +idUsuarioModifica+ "");
+		q.agregarParametroValues("ID_USUARIO_MODIFICA", "" +idUsuario+ "");
 		q.agregarParametroValues("FEC_ACTUALIZACION", "" +AppConstantes.CURRENT_TIMESTAMP + "");
 		if(this.indEstatus==0) {
 			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "FALSE");
 			q.agregarParametroValues("FEC_BAJA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
-			q.agregarParametroValues("ID_USUARIO_BAJA", "" + idUsuarioModifica + "");
+			q.agregarParametroValues("ID_USUARIO_BAJA", "" + idUsuario + "");
 		}else {
 			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "TRUE");
 		}
@@ -406,11 +401,11 @@ public class GestionarPromotores {
 		final QueryHelper q = new QueryHelper("UPDATE SVT_PROMOTOR");
 		if(promotor.getEstatus()==0) {
 			q.agregarParametroValues("FEC_BAJA", "" +AppConstantes.CURRENT_TIMESTAMP + "");
-			q.agregarParametroValues("ID_USUARIO_BAJA",  "" + idUsuarioModifica + "");
+			q.agregarParametroValues("ID_USUARIO_BAJA",  "" + idUsuario + "");
 			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "FALSE");
 		}else {
 			q.agregarParametroValues("FEC_ACTUALIZACION", "" +AppConstantes.CURRENT_TIMESTAMP + "");
-			q.agregarParametroValues("ID_USUARIO_MODIFICA",  "" + idUsuarioModifica + "");
+			q.agregarParametroValues("ID_USUARIO_MODIFICA",  "" + idUsuario + "");
 			q.agregarParametroValues("" +AppConstantes.IND_ACTIVO+ "", "TRUE");
 		}
 		q.addWhere("ID_PROMOTOR = " + promotor.getIdPromotor());

@@ -126,7 +126,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		    promotores=new GestionarPromotores(promoRequest);
 		    promotores.setFecIngreso(formatFecha(promoRequest.getFecIngreso()));
 		    promotores.setFecNacimiento(formatFecha(promoRequest.getFecNac()));
-			promotores.setIdUsuarioAlta(usuario.getIdUsuario());
+			promotores.setIdUsuario(usuario.getIdUsuario());
 	
 			if(validarCurp(promoRequest.getCurp(), authentication)) {
 				logUtil.crearArchivoLog(Level.WARNING.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"EL PROMOTOR QUE DESEAS INGRESAR YA SE ENCUENTRA REGISTRADO EN EL SISTEMA.", ALTA, authentication, usuario);
@@ -140,18 +140,20 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(promoRequest.getFecPromotorDiasDescanso()).getDatos(), urlCrearMultiple,	authentication);
 					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrear, authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
-				}
-				else {
+					
+				}else {
 				//	response = providerRestTemplate.consumirServicio(promotores.insertarPersona(personaRequest.getPromotor()).getDatos(), urlCrear, authentication);
 					response = providerRestTemplate.consumirServicio(promotores.insertarPromotor().getDatos(), urlCrearMultiple, authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"PROMOTOR AGREGADO CORRECTAMENTE", ALTA, authentication, usuario);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
-		/*		if(response.getCodigo()==200) {
+						
+					/*		if(response.getCodigo()==200) {
 					Integer idPersona =Integer.parseInt(response.getDatos().toString());
 					providerRestTemplate.consumirServicio(promotores.insertarPromotor(idPersona, personaRequest.getPromotor()).getDatos(), urlCrearMultiple,				authentication);
 					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"DIAS DE DESCANSOS AGREGADOS CORRECTAMENTE", ALTA, authentication, usuario);
 				} */
 				}
+				return response;
 			}catch (Exception e) {
 				String consulta = promotores.insertarPromotor().getDatos().get("query").toString();
 				String encoded = new String(DatatypeConverter.parseBase64Binary(consulta));
@@ -159,7 +161,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 				logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(),"error", MODIFICACION, authentication, usuario);
 				throw new IOException("5", e.getCause()) ;
 			}
-			return response;	      
+			      
 }
 
 	
@@ -173,7 +175,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, INFORMACION_INCOMPLETA);
 		}
 		promotores=new GestionarPromotores(promoRequest);
-		promotores.setIdUsuarioModifica(usuario.getIdUsuario());
+		promotores.setIdUsuario(usuario.getIdUsuario());
 		try {
 			if(promoRequest.getFecPromotorDiasDescanso()==null) {
 				Response<?> response =  providerRestTemplate.consumirServicio(promotores.actualizarPromotor().getDatos(), urlActualizar, authentication);
@@ -212,7 +214,7 @@ public class GestionarPromotoresImpl implements GestionarPromotoresService{
 		if (promotor.getIdPromotor()== null || promotor.getEstatus()==null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, INFORMACION_INCOMPLETA);
 		}
-		promotores.setIdUsuarioModifica(usuario.getIdUsuario());
+		promotores.setIdUsuario(usuario.getIdUsuario());
 		Response<?> response =  MensajeResponseUtil.mensajeConsultaResponse(providerRestTemplate.consumirServicio(promotores.cambiarEstatus(promotor).getDatos(), urlActualizar,
 				authentication), EXITO);
 		if(promotor.getEstatus()==1) {
